@@ -44,14 +44,16 @@ jobs:
   lean:
     name: lean (lake build)
     runs-on: ubuntu-latest
-    defaults: { run: { working-directory: proofs } }
     steps:
       - uses: actions/checkout@v4
       - uses: leanprover/lean-action@v1
         with:
           lake-package-directory: proofs
-          use-mathlib-cache: true
-        continue-on-error: true   # Phase A allows sorrys; tightens at v0.1.
+          use-mathlib-cache: false   # kernel is pure Lean 4; no mathlib dep
+      - name: assert no sorrys
+        working-directory: proofs
+        run: |
+          ! grep -RnE '\bsorry\b' Ghc/ Ghc.lean
 
   paper:
     name: paper (latexmk)

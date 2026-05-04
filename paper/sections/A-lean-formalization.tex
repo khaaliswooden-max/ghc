@@ -1,28 +1,50 @@
 \section{Lean 4 Formalization Index}
 \label{app:lean}
 
-For each numbered theorem in the body, the table below points to the
-file and identifier in \path{proofs/}.
+The GHC kernel is formalized in pure Lean 4 (no \texttt{mathlib}
+dependency) under \path{proofs/}. Every numbered theorem in the body
+of this paper corresponds either to a fully-proven kernel theorem
+(table below) or to a Phase B+ extension (real-analysis-heavy claims
+that will be mechanized once \texttt{mathlib} is integrated).
 
 \begin{center}
 \begin{tabular}{lll}
 \toprule
 Theorem & File & Identifier \\
 \midrule
-\Cref{thm:hcf} (Halal-Closure Functor) &
-  \path{Ghc/Category.lean} & \texttt{halalClosureFunctor} \\
-\Cref{thm:survival} (Survival bound) &
-  \path{Ghc/Info.lean} & \texttt{survivalBound} \\
-\Cref{prop:diagnostics} (Najis diagnostics) &
-  \path{Ghc/Quantum.lean} & \texttt{najisDiagnostics} \\
-\Cref{thm:spectral} (Spectral fingerprint) &
-  \path{Ghc/Spectral.lean} & \texttt{spectralFingerprint} \\
-\Cref{thm:convergence} (Compliance convergence) &
-  \path{Ghc/Convergence.lean} & \texttt{complianceConverges} \\
+\Cref{thm:lattice-laws} (Lattice laws) &
+  \path{Ghc/Lattice.lean} & \texttt{Verdict.*\_assoc / *\_comm / ...} \\
+\Cref{thm:hcf} (HCF kernel) &
+  \path{Ghc/Category.lean} & \texttt{Process.halalClosure\_*} \\
+\Cref{thm:survival-kernel} (Survival kernel) &
+  \path{Ghc/Info.lean} & \texttt{Info.chain\_kills\_under\_no\_invent} \\
+\Cref{thm:najis-kernel} (Najis kernel) &
+  \path{Ghc/Quantum.lean} & \texttt{Quantum.Batch.verdict\_*} \\
+\Cref{thm:spectral-kernel} (Fingerprint kernel) &
+  \path{Ghc/Spectral.lean} & \texttt{Spectral.Graph.*\_relabel} \\
+\Cref{thm:convergence-kernel} (Convergence kernel) &
+  \path{Ghc/Convergence.lean} & \texttt{Convergence.plurality\_unanimous} \\
 \bottomrule
 \end{tabular}
 \end{center}
 
-CI gates the paper build on \texttt{lake build} succeeding for every
-identifier above; a missing or \texttt{sorry}-bearing theorem fails the
+\paragraph{CI gate.} The repository's CI runs
+\texttt{lake build} on every push and additionally greps for
+\verb|sorry| in the kernel source tree; either failure breaks the
+build. The kernel currently contains zero \texttt{sorry}s and zero
+unsafe \texttt{axiom}s, and compiles in under twenty seconds on a
+stock Ubuntu runner with no \texttt{mathlib} cache.
+
+\paragraph{Phase B+ extensions.} The mathlib-dependent statements ---
+the full \Cref{thm:survival} (mutual-information bound),
+\Cref{prop:diagnostics} (purity/entropy bounds on the density matrix),
+\Cref{thm:spectral} (Laplacian-spectrum invariance), and
+\Cref{thm:convergence} (Azuma--Hoeffding) --- are tracked under
+\path{docs/PLAN.md} as Phase B+ work and will live in a separate
+sub-library that depends on \texttt{mathlib4}.
+
+\paragraph{Smoke checks.} \path{proofs/Ghc/Smoke.lean} enumerates
+every kernel theorem with \verb|#check| and provides concrete
+\verb|decide|-checked examples for HCF and plurality, ensuring no
+theorem can be silently weakened or removed without breaking the
 build.

@@ -68,15 +68,16 @@ code and a Lean proof obligation.
 
 ## Phased Execution
 
-| Phase | Weeks | Output |
-|-------|-------|--------|
-| A. Literature & corpus | 1–4 | `paper/bib/ghc.bib`; lit-review chapter. |
-| B. Math core + Lean | 5–10 | HCF, `C_h`, `ρ_n` formalized; whitepaper §3–§4. |
-| C. Rust core + ZK | 11–18 | `ghc-algebra`, `ghc-graph`, `ghc-zk`. |
-| D. Integrations | 19–22 | Certifier APIs, OpenEPCIS, Fabric chaincode, Solidity verifier. |
-| E. ML & datasets | 23–26 | LayoutLMv3 fine-tune; GNN risk model. |
-| F. Whitepaper + spec | 27–32 | Full draft; GHC Protocol v0.1 spec frozen. |
-| G. External review | 33–36 | Shariah-board review; arXiv preprint. |
+| Phase | Weeks | Output | Status |
+|-------|-------|--------|--------|
+| A. Literature & corpus | 1–4 | `paper/bib/ghc.bib`; lit-review chapter. | seeded |
+| B. Math core + Lean (kernel) | 5–10 | HCF, survival, `ρ_n`, spectral, convergence kernels formalized in pure Lean 4; `lake build` green; whitepaper §3–§8. | **done** |
+| B+. Mathlib refinements | parallel | Real-analysis-heavy versions (full `C_h`, density-matrix purity, Laplacian spectra, Azuma–Hoeffding) ported to mathlib4. | open |
+| C. Rust core + ZK | 11–18 | `ghc-algebra`, `ghc-graph`, `ghc-zk`. | open |
+| D. Integrations | 19–22 | Certifier APIs, OpenEPCIS, Fabric chaincode, Solidity verifier. | open |
+| E. ML & datasets | 23–26 | LayoutLMv3 fine-tune; GNN risk model. | open |
+| F. Whitepaper + spec | 27–32 | Full draft; GHC Protocol v0.1 spec frozen. | open |
+| G. External review | 33–36 | Shariah-board review; arXiv preprint. | open |
 
 ## Open Questions
 

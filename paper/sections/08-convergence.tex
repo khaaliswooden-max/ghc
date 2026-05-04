@@ -5,7 +5,7 @@ A practical question for any audit-driven regime is: \emph{how many
 audits are enough?} GHC answers this quantitatively under a martingale
 model.
 
-\subsection{Audit model}
+\subsection{Audit model (Phase B+)}
 
 Let $\theta^\star \in \Lat$ be the (unknown) true compliance state of a
 producer, and let $(\theta_t)_{t \geq 1}$ be the GHC posterior after $t$
@@ -13,9 +13,7 @@ audits. Each audit returns a noisy observation
 $O_t = \theta^\star + \xi_t$ where $\xi_t$ is a bounded martingale
 difference $|\xi_t| \leq c_t$ adapted to $\mathcal{F}_t$.
 
-\subsection{Convergence}
-
-\begin{theorem}[Compliance convergence]
+\begin{theorem}[Compliance convergence --- Phase B+ statement]
 \label{thm:convergence}
 Under the assumptions above,
 \[
@@ -29,7 +27,43 @@ Equivalently, $t = O\bigl(\bar c^2 \varepsilon^{-2}
 $\varepsilon$ with confidence $1 - \delta$.
 \end{theorem}
 
-\Cref{thm:convergence} converts the historically-discretionary question
-``how many audits per year?'' into a closed-form function of certifier
-reliability ($\bar c$) and target tolerance ($\varepsilon, \delta$).
-Lean formalization is in \path{proofs/Ghc/Convergence.lean}.
+The full Azuma--Hoeffding statement requires real analysis from mathlib
+and lives on the Phase B+ roadmap.
+
+\subsection{Discrete kernel (mechanized)}
+
+The deterministic (zero-noise) boundary of \Cref{thm:convergence} is
+provable in pure Lean. We model the audit log as a list of verdicts
+$\mathrm{audits} \in \Lat^*$, define a count-based plurality vote
+$\mathrm{plurality}(\mathrm{audits})$ with $\haram$ as the conservative
+tiebreaker, and prove that unanimity recovers the truth exactly.
+
+\begin{theorem}[Convergence kernel; mechanized]
+\label{thm:convergence-kernel}
+For any audit log $\mathrm{audits}$ and target verdict $v$:
+\begin{enumerate}[label=(C\arabic*)]
+  \item \emph{Count bound:} $\mathrm{count}(\mathrm{audits}, v) \leq
+        |\mathrm{audits}|$.
+  \item \emph{Unanimity recovery:} if every audit returned $v$, then
+        $\mathrm{count}(\mathrm{audits}, v) = |\mathrm{audits}|$.
+  \item \emph{Zero count for non-targets:} if every audit returned $v$
+        and $w \neq v$, then $\mathrm{count}(\mathrm{audits}, w) = 0$.
+  \item \emph{Plurality unanimity:} if the audit log is nonempty and
+        every audit returned $v$, then
+        $\mathrm{plurality}(\mathrm{audits}) = v$.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}[Proof (kernel)]
+By induction on the audit list, with case analysis on the target
+verdict for the plurality claim; mechanized in
+\texttt{proofs/Ghc/Conver\-gence.lean} via
+\texttt{Convergence.count\_le\_length}, \texttt{count\_unanimous},
+\texttt{count\_unanimous\_other}, and \texttt{plurality\_unanimous}.
+\end{proof}
+
+\Cref{thm:convergence-kernel} is the deterministic ($\bar c \to 0$)
+limit of \Cref{thm:convergence}: with no audit noise, a single audit
+suffices, and any number of unanimous audits recovers the truth. The
+probabilistic refinement quantifies the rate at which this holds when
+$\bar c > 0$.

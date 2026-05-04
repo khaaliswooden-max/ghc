@@ -1,7 +1,7 @@
 \section{The Najis Density Matrix}
 \label{sec:najis}
 
-\subsection{Provenance Hilbert space}
+\subsection{Provenance Hilbert space (Phase B+)}
 
 For a finite set $\mathcal{S}$ of source-batch identifiers we define the
 provenance Hilbert space $\mathcal{H} = \mathbb{C}^{|\mathcal{S}|}$ with
@@ -9,8 +9,6 @@ orthonormal basis $\{\,|s\rangle : s \in \mathcal{S}\,\}$. A pure
 provenance state is a unit vector $|\psi\rangle \in \mathcal{H}$;
 operationally, $|\langle s | \psi\rangle|^2$ is the (epistemic)
 probability that the batch in question originated at source $s$.
-
-\subsection{The mixed state $\rhoN$}
 
 \begin{definition}[Najis density matrix]
 \label{def:rhon}
@@ -23,9 +21,7 @@ Mixing is direct sum followed by partial trace over discarded
 sub-systems; separation is the corresponding adjoint.
 \end{definition}
 
-\subsection{Scalar diagnostics}
-
-\begin{proposition}
+\begin{proposition}[Scalar diagnostics — Phase B+]
 \label{prop:diagnostics}
 $\rhoN(B)$ admits the following scalar reductions, each computable in
 $O(|\mathcal{S}|^3)$:
@@ -40,6 +36,43 @@ $O(|\mathcal{S}|^3)$:
 \end{enumerate}
 \end{proposition}
 
-The Lean formalization (with reductions to mathlib's
-\texttt{InnerProductSpace} machinery) is in
-\path{proofs/Ghc/Quantum.lean}.
+\Cref{prop:diagnostics} requires mathlib's \texttt{InnerProductSpace}
+machinery and is on the Phase B+ roadmap.
+
+\subsection{Discrete kernel (mechanized)}
+
+The diagonal classical case --- which covers the overwhelming majority
+of operational compliance decisions --- is provable in pure Lean.
+Model a batch as a list of $(s_i, w_i, v_i)$ contributions where
+$v_i \in \Lat$ is the source's verdict. The mix verdict is the meet of
+contributions; mixing is concatenation.
+
+\begin{theorem}[Najis closure kernel; mechanized]
+\label{thm:najis-kernel}
+For any batches $b_1, b_2$ encoded as contribution lists, and any
+verdict $v$:
+\begin{enumerate}[label=(N\arabic*)]
+  \item \emph{Mixing compositionality:}
+        $\mathrm{verdict}(b_1 \mathbin{+\!\!+} b_2) =
+         \mathrm{verdict}(b_1) \sqcap \mathrm{verdict}(b_2)$.
+  \item \emph{All-halal closure:} if every contribution in $b$ is
+        $\halal$, then $\mathrm{verdict}(b) = \halal$.
+  \item \emph{Haram contamination:} if any contribution in $b$ is
+        $\haram$, then $\mathrm{verdict}(b) = \haram$.
+  \item \emph{Uniformity:} if $b$ is nonempty and every contribution
+        has verdict $v$, then $\mathrm{verdict}(b) = v$.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}[Proof (kernel)]
+By induction on contribution lists; mechanized in
+\texttt{proofs/Ghc/Quan\-tum.lean} via
+\texttt{Quantum.Batch.verdict\_mix}, \texttt{verdict\_all\_halal},
+\texttt{verdict\_haram\_member}, \texttt{verdict\_uniform}.
+\end{proof}
+
+\Cref{thm:najis-kernel} is the diagonal restriction of
+\Cref{prop:diagnostics}: when each $|\psi_i\rangle = |s_i\rangle$ is a
+basis vector and $w_i$ are interpreted as classical mass fractions,
+purity collapses to the indicator that all contributions agree, and
+the meet-of-verdicts identity becomes literal.

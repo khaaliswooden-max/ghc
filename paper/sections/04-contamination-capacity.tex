@@ -11,7 +11,7 @@ $\Pi_i$. Empirical estimates of $\Pi_i$ for canonical operations
 (centrifugation, distillation, washing cycles, etc.) are tabulated in
 \Cref{sec:eval}.
 
-\subsection{Capacity}
+\subsection{Capacity (Phase B+)}
 
 \begin{definition}[Contamination channel capacity]
 \label{def:capacity}
@@ -24,7 +24,7 @@ $\{0,1\}$ subject to the operational admissibility constraints inherited
 from $\SC$.
 \end{definition}
 
-\begin{theorem}[Survival bound]
+\begin{theorem}[Survival bound — Phase B+ statement]
 \label{thm:survival}
 Under \cref{def:capacity},
 \[
@@ -37,7 +37,36 @@ operations suffice to drive haram-signal survival below any
 $\varepsilon > 0$.
 \end{theorem}
 
-\Cref{thm:survival} converts the qualitative ``thoroughness'' of a
-cleaning protocol into an auditable bit count. The Lean formalization is
-in \path{proofs/Ghc/Info.lean}; tabulated $\Pi_i$ for industrial
-operations are produced by \path{notebooks/04-channel-estimation.ipynb}.
+\Cref{thm:survival} requires real analysis (mathlib) and lives on the
+Phase B+ roadmap.
+
+\subsection{Deterministic kernel (mechanized)}
+
+The deterministic 0/1 boundary of \Cref{thm:survival} is provable in
+pure Lean with no external dependency, and captures the
+operationally-decisive case: when \emph{any} process step is known to
+deterministically eliminate contamination (e.g.\ an autoclave at
+sufficient temperature) and no downstream step reintroduces it, the
+chain's survival probability is identically zero.
+
+\begin{theorem}[Survival kernel; mechanized]
+\label{thm:survival-kernel}
+Let $\mathrm{Ws}$ be a finite list of deterministic boolean channels
+$W_i \colon \mathrm{Bool} \to \mathrm{Bool}$, and let
+$\mathrm{chain}\,\mathrm{Ws}$ denote their iterated composition. If
+each $W_i$ satisfies \emph{no-reinvention} ($W_i\,\mathrm{false} =
+\mathrm{false}$) and at least one $W_j \in \mathrm{Ws}$ \emph{kills}
+($\forall x.\,W_j\,x = \mathrm{false}$), then
+$\mathrm{chain}\,\mathrm{Ws}\,x = \mathrm{false}$ for every input $x$.
+\end{theorem}
+
+\begin{proof}[Proof (kernel)]
+By induction on the channel list; mechanized in
+\texttt{proofs/Ghc/Info.lean} via
+\texttt{Info.chain\_kills\_under\_no\_invent}, with the auxiliary
+\texttt{Info.chain\_false\_of\_noinvent} establishing that
+\textsf{false} is preserved through any \texttt{NoInvent} chain.
+\end{proof}
+
+\Cref{thm:survival-kernel} is exactly \Cref{thm:survival} when every
+$\Pi_i \in \{0,1\}$, $\Ch(W) = 0$, and $\delta(W)$ is unbounded.

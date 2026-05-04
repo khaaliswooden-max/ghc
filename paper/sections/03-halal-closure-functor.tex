@@ -32,25 +32,66 @@ set $\mathcal{A}$. Meet $\sqcap$ models conjunction of authoritative
 opinion; join $\sqcup$ models disjunction.
 \end{definition}
 
-\subsection{The functor}
-
-\begin{theorem}[Halal-Closure Functor]
-\label{thm:hcf}
-There exists a strong monoidal functor $\HCF \colon \SC \to \Lat$ satisfying
-\begin{enumerate}[label=(H\arabic*)]
-  \item \emph{Compositionality:} $\HCF(g \circ f) = \HCF(g) \sqcap_\Lat \HCF(f)$.
-  \item \emph{Tensor preservation:} $\HCF(B_1 \otimes B_2) =
-        \HCF(B_1) \sqcup_\Lat \HCF(B_2)$.
-  \item \emph{Authority refinement:} for each $A \in \mathcal{A}$ the
-        composite $\pi_A \circ \HCF$ is a functor $\SC \to \Lat_A$.
-\end{enumerate}
-The Lean~4 proof of \cref{thm:hcf} appears in
-\path{proofs/Ghc/Category.lean}.
+\begin{theorem}[Distributive bounded lattice; mechanized]
+\label{thm:lattice-laws}
+$(\Lat, \sqcap, \sqcup)$ is a bounded distributive lattice with
+bottom $\halal$ and top $\haram$. Commutativity, associativity,
+idempotence, both absorption laws, and both distributive laws hold.
 \end{theorem}
 
+\begin{proof}[Proof (kernel)]
+By exhaustive case analysis on the three-element carrier; mechanized
+in \texttt{proofs/Ghc/Lattice.lean} via
+\texttt{Verdict.meet\_comm}, \texttt{Verdict.meet\_assoc},
+\texttt{Verdict.meet\_idem}, \texttt{Verdict.absorb\_meet\_join},
+\texttt{Verdict.absorb\_join\_meet},
+\texttt{Verdict.meet\_join\_distrib},
+\texttt{Verdict.join\_meet\_distrib},
+\texttt{Verdict.halal\_bot}, \texttt{Verdict.haram\_top}.
+\end{proof}
+
+\subsection{The functor (kernel form)}
+
+\begin{theorem}[Halal-Closure Functor — kernel]
+\label{thm:hcf}
+Let $\Process$ be the free monoid of supply-chain operations (lists
+of per-step verdicts), and define
+$\HCF \colon \Process \to \Lat$ by iterated meet of per-step
+verdicts. Then
+\begin{enumerate}[label=(H\arabic*)]
+  \item \emph{Compositionality:}
+        $\HCF(\mathrm{xs} \mathbin{+\!\!+} \mathrm{ys})
+         = \HCF(\mathrm{xs}) \sqcap \HCF(\mathrm{ys})$.
+  \item \emph{Tensor preservation:} on parallel-composed processes
+        (independently resolved verdicts) the same identity holds.
+  \item \emph{All-halal closure:} if every step verdict is $\halal$,
+        $\HCF(\mathrm{xs}) = \halal$.
+  \item \emph{Haram absorption:} a single $\haram$ step taints the
+        entire process.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}[Proof (kernel)]
+By induction on the operation list; mechanized in
+\texttt{proofs/Ghc/Cate\-gory.lean} via
+\texttt{Process.halalClosure\_append} (compositionality),
+\texttt{Process.halal\-Closure\_parallel} (tensor preservation),
+\texttt{Process.halalClosure\_all\_halal}, and
+\texttt{Process.halalClosure\_haram\_absorb}.
+\end{proof}
+
+\begin{remark}[Phase B+ extension]
+The extension to a genuine \texttt{MonoidalCategory} structure ---
+which carries the full strong-monoidal coherence required by
+\cite{maclane,fongspivak} --- introduces no new compositional content
+beyond the kernel; it only re-encodes the same identities at the
+level of \texttt{mathlib}'s \texttt{Functor} class. We track this on
+the Phase B+ roadmap.
+\end{remark}
+
 \begin{remark}
-\Cref{thm:hcf} is the workhorse of GHC: it justifies the entire pipeline
-from event-level capture (EPCIS) to product-level attestation (zk-Halal).
 The compositionality clause means a verifier can recompute compliance
-status of a finished product from any honest intermediate evidence.
+status of a finished product from any honest intermediate evidence,
+which is what makes the entire downstream pipeline (EPCIS event
+capture $\to$ zk-Halal attestation) sound.
 \end{remark}

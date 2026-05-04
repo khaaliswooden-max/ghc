@@ -1,6 +1,6 @@
 [package]
 name        = "ghc-zk"
-description = "zk-Halal SNARK circuits and verifier (arkworks)."
+description = "zk-Halal SNARK circuits and verifier (arkworks Groth16 over BLS12-381)."
 version.workspace      = true
 edition.workspace      = true
 rust-version.workspace = true
@@ -9,6 +9,9 @@ repository.workspace   = true
 authors.workspace      = true
 
 [dependencies]
+ghc-algebra   = { path = "../ghc-algebra" }
+
+ark-std       = { workspace = true }
 ark-ff        = { workspace = true }
 ark-ec        = { workspace = true }
 ark-bls12-381 = { workspace = true }
@@ -19,3 +22,4 @@ ark-snark     = { workspace = true }
 ark-serialize = { workspace = true }
 serde         = { workspace = true }
 thiserror     = { workspace = true }
+rand          = { workspace = true }

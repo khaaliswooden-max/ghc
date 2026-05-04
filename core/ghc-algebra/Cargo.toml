@@ -1,6 +1,6 @@
 [package]
 name        = "ghc-algebra"
-description = "Supply-chain category and contamination-channel algebra for GHC."
+description = "Supply-chain category, contamination channels, and audit plurality for GHC."
 version.workspace      = true
 edition.workspace      = true
 rust-version.workspace = true

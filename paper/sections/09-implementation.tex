@@ -5,31 +5,84 @@ The GHC reference implementation is co-designed with this paper. Code
 artifacts referenced below are reproducible from the GHC repository.
 
 \paragraph{Proofs.}
-\path{proofs/} contains the Lean~4 \cite{lean4} formalization, built on
-mathlib4 \cite{mathlib4}. Each numbered theorem in this paper has a
-corresponding lemma in the Lean tree.
+\path{proofs/} contains the kernel Lean~4 \cite{lean4} formalization
+in pure Lean 4 (no \texttt{mathlib} dependency); 20-second builds.
+\path{proofs-mathlib/} contains the Phase B+ extensions on top of
+mathlib4 \cite{mathlib4} (density-matrix purity, charpoly under
+relabel, Chebyshev/Chernoff audit concentration, exponential channel
+survival). Both trees are gated by CI to contain zero \texttt{sorry}s
+and zero unsafe \texttt{axiom}s.
 
 \paragraph{Core (Rust).}
-\path{core/ghc-algebra} encodes the supply-chain category and the
-contamination channel; \path{core/ghc-graph} computes spectral
-fingerprints; \path{core/ghc-zk} hosts the zk-Halal circuits on
-arkworks \cite{arkworks}.
+The \path{core/} workspace ships four crates that are runtime mirrors
+of the proven theorems, with property tests (\texttt{proptest}) that
+re-establish each Lean invariant in Rust so that any drift between
+formalization and runtime breaks the build:
+
+\begin{itemize}
+\item \texttt{ghc-algebra}: \texttt{Verdict} lattice (mirroring
+  \texttt{Ghc.Verdict}), \texttt{Process} + \texttt{halal\_closure}
+  (\texttt{Ghc.Process}), \texttt{Batch} + \texttt{Contribution}
+  (\texttt{Ghc.Quantum.Batch}), deterministic and stochastic channels
+  (\texttt{Ghc.Info} and \texttt{GhcMathlib.Channel}), and audit
+  \texttt{plurality} (\texttt{Ghc.Convergence}). 29 unit and property
+  tests.
+\item \texttt{ghc-graph}: \texttt{ProvenanceDag} with
+  \texttt{weight\_seq} / \texttt{count\_weight} / \texttt{total\_weight}
+  (mirroring \texttt{Spectral.Graph}); \texttt{fingerprint} computes
+  the top-$k$ eigenvalues of the normalized weighted Laplacian via
+  \texttt{nalgebra::SymmetricEigen}. 5 tests including bijective
+  spectral invariance.
+\item \texttt{ghc-zk}: zk-Halal Groth16 over BLS12-381 via arkworks
+  \cite{arkworks}. The \texttt{HalalThresholdCircuit} encodes
+  (i)~domain check $w_i (w_i - 1)(w_i - 2) = 0$ forcing
+  $w_i \in \{\halal, \mashbuh, \haram\}$, (ii)~threshold check
+  ($w_i = 0$ for \halal-only, $w_i (w_i - 1) = 0$ for $\leq \mashbuh$),
+  and (iii)~a base-4 linear binding commitment $c = \mathrm{salt} +
+  \sum_i 4^i \cdot w_i$. 6 tests including hostile-witness rejection.
+\item \texttt{ghc-cli}: the \texttt{ghc} binary surfaces
+  \texttt{closure}, \texttt{plurality}, \texttt{fingerprint},
+  \texttt{prove}, \texttt{verify}, and an end-to-end \texttt{demo}.
+\end{itemize}
+
+\paragraph{Reference benchmarks.} On a stock x86\_64 Linux runner,
+the v0.0.x \texttt{HalalThresholdCircuit} with $n = 3$ produces a
+192-byte Groth16 proof:
+
+\begin{center}
+\begin{tabular}{lr}
+\toprule
+Operation & Wall time \\
+\midrule
+\texttt{Groth16::circuit\_specific\_setup} & 210 ms \\
+\texttt{Groth16::prove}                    & 42 ms  \\
+\texttt{Groth16::verify}                   & 47 ms  \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+CI invokes \texttt{cargo run -{}-release -p ghc-cli -{}- demo} on
+every push; a green build is the canonical operational
+reproducibility certificate.
 
 \paragraph{Services (Python).}
 \path{services/ghc_api} is a FastAPI gateway. \path{services/ghc_ml}
 hosts the ML pipelines: LayoutLMv3 \cite{layoutlm} for ingredient OCR,
 multilingual BERT/XLM-R for label NLP, and PyTorch-Geometric GNNs for
 supply-chain risk. \path{services/ghc_traceability} adapts OpenEPCIS.
+These remain Phase D/E targets.
 
 \paragraph{Spec.}
 \path{spec/} publishes the GHC Protocol as Markdown plus JSON Schema +
 JSON-LD contexts. The data model extends EPCIS~2.0 \cite{epcis2} and
 W3C PROV-O \cite{provo}; attestations are W3C Verifiable Credentials
-\cite{vc}.
+\cite{vc}. The \texttt{ghc-cli} \texttt{prove} / \texttt{verify}
+subcommands produce/consume the binary serialization that the v0.1
+spec will wrap in a VC envelope.
 
 \paragraph{Integrations.}
 \path{integrations/certifiers/} ships query-on-demand adapters for
 JAKIM, MUI/BPJPH, HFA, ESMA, SFDA, and SMIIC registries (subject to
 each registry's terms of service). \path{integrations/dlt/} provides a
 Hyperledger Fabric chaincode \cite{fabric} and a Solidity verifier for
-EVM L2 anchoring.
+EVM L2 anchoring (Phase D).

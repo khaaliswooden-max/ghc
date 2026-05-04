@@ -7,7 +7,7 @@ on:
 
 jobs:
   rust:
-    name: rust (cargo test)
+    name: rust (cargo test + demo)
     runs-on: ubuntu-latest
     defaults: { run: { working-directory: core } }
     steps:
@@ -18,6 +18,8 @@ jobs:
       - run: cargo fmt --all -- --check
       - run: cargo clippy --workspace --all-targets -- -D warnings
       - run: cargo test --workspace
+      - name: end-to-end demo (zk-Halal Groth16)
+        run: cargo run --release -p ghc-cli -- demo
 
   python:
     name: python (pytest)

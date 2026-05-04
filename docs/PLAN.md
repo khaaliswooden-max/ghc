@@ -74,7 +74,8 @@ code and a Lean proof obligation.
 | B. Math core + Lean (kernel) | 5–10 | HCF, survival, `ρ_n`, spectral, convergence kernels formalized in pure Lean 4; `lake build` green; whitepaper §3–§8. | **done** |
 | B+. Mathlib refinements | parallel | Density-matrix purity bound, charpoly invariance under relabel, Chebyshev/Chernoff audit concentration, exponential survival under no-reinvention. | **done** |
 | C+. Heavy mathlib | parallel | Mutual-information `C_h`, Hoeffding's lemma, Azuma–Hoeffding, spectral-theorem reduction to abstract Hermitian densities. | open |
-| C. Rust core + ZK | 11–18 | `ghc-algebra`, `ghc-graph`, `ghc-zk`. | open |
+| C. Rust core + ZK | 11–18 | `ghc-algebra` + `ghc-graph` + `ghc-zk` + `ghc-cli`; runtime mirror of every Lean kernel theorem; Groth16 over BLS12-381; end-to-end CLI demo. | **done (v0.0.x)** |
+| C+. ZK hardening | parallel | Swap base-4 commitment for Poseidon-on-BLS12-381; PLONK universal-setup variant; Circom/Solidity EVM port. | open |
 | D. Integrations | 19–22 | Certifier APIs, OpenEPCIS, Fabric chaincode, Solidity verifier. | open |
 | E. ML & datasets | 23–26 | LayoutLMv3 fine-tune; GNN risk model. | open |
 | F. Whitepaper + spec | 27–32 | Full draft; GHC Protocol v0.1 spec frozen. | open |

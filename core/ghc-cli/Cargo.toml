@@ -1,0 +1,28 @@
+[package]
+name        = "ghc-cli"
+description = "End-to-end GHC reference CLI: build provenance, attest, verify."
+version.workspace      = true
+edition.workspace      = true
+rust-version.workspace = true
+license.workspace      = true
+repository.workspace   = true
+authors.workspace      = true
+
+[[bin]]
+name = "ghc"
+path = "src/main.rs"
+
+[dependencies]
+ghc-algebra = { path = "../ghc-algebra" }
+ghc-graph   = { path = "../ghc-graph" }
+ghc-zk      = { path = "../ghc-zk" }
+
+ark-bls12-381 = { workspace = true }
+ark-ff        = { workspace = true }
+ark-groth16   = { workspace = true }
+ark-serialize = { workspace = true }
+
+clap        = { workspace = true }
+serde       = { workspace = true }
+serde_json  = { workspace = true }
+thiserror   = { workspace = true }

@@ -4,6 +4,7 @@ members = [
   "ghc-algebra",
   "ghc-graph",
   "ghc-zk",
+  "ghc-cli",
 ]
 
 [workspace.package]
@@ -15,6 +16,9 @@ repository    = "https://github.com/khaaliswooden-max/ghc"
 authors       = ["The GHC Authors"]
 
 [workspace.dependencies]
+# CLI
+clap            = { version = "4", features = ["derive"] }
+
 # Linear algebra
 nalgebra        = "0.33"
 ndarray         = "0.16"
@@ -23,6 +27,7 @@ ndarray         = "0.16"
 petgraph        = "0.6"
 
 # arkworks zk stack
+ark-std         = "0.4"
 ark-ff          = "0.4"
 ark-ec          = "0.4"
 ark-bls12-381   = "0.4"
@@ -31,6 +36,7 @@ ark-relations   = "0.4"
 ark-r1cs-std    = "0.4"
 ark-snark       = "0.4"
 ark-serialize   = "0.4"
+ark-crypto-primitives = { version = "0.4", features = ["sponge"] }
 
 # Serde / errors
 serde           = { version = "1", features = ["derive"] }
@@ -39,3 +45,4 @@ thiserror       = "1"
 
 # Test infra
 proptest        = "1"
+rand            = "0.8"

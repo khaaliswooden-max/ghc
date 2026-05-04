@@ -72,7 +72,8 @@ code and a Lean proof obligation.
 |-------|-------|--------|--------|
 | A. Literature & corpus | 1–4 | `paper/bib/ghc.bib`; lit-review chapter. | seeded |
 | B. Math core + Lean (kernel) | 5–10 | HCF, survival, `ρ_n`, spectral, convergence kernels formalized in pure Lean 4; `lake build` green; whitepaper §3–§8. | **done** |
-| B+. Mathlib refinements | parallel | Real-analysis-heavy versions (full `C_h`, density-matrix purity, Laplacian spectra, Azuma–Hoeffding) ported to mathlib4. | open |
+| B+. Mathlib refinements | parallel | Density-matrix purity bound, charpoly invariance under relabel, Chebyshev/Chernoff audit concentration, exponential survival under no-reinvention. | **done** |
+| C+. Heavy mathlib | parallel | Mutual-information `C_h`, Hoeffding's lemma, Azuma–Hoeffding, spectral-theorem reduction to abstract Hermitian densities. | open |
 | C. Rust core + ZK | 11–18 | `ghc-algebra`, `ghc-graph`, `ghc-zk`. | open |
 | D. Integrations | 19–22 | Certifier APIs, OpenEPCIS, Fabric chaincode, Solidity verifier. | open |
 | E. ML & datasets | 23–26 | LayoutLMv3 fine-tune; GNN risk model. | open |

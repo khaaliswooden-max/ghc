@@ -41,8 +41,8 @@ jobs:
       - run: pip install jsonschema
       - run: python tools/conformance/validate_schemas.py spec/schemas
 
-  lean:
-    name: lean (lake build)
+  lean-kernel:
+    name: lean kernel (pure Lean 4)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -54,6 +54,20 @@ jobs:
         working-directory: proofs
         run: |
           ! grep -RnE '\bsorry\b' Ghc/ Ghc.lean
+
+  lean-mathlib:
+    name: lean mathlib extensions (Phase B+)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: leanprover/lean-action@v1
+        with:
+          lake-package-directory: proofs-mathlib
+          use-mathlib-cache: true
+      - name: assert no sorrys
+        working-directory: proofs-mathlib
+        run: |
+          ! grep -RnE '\bsorry\b' GhcMathlib/ GhcMathlib.lean
 
   paper:
     name: paper (latexmk)

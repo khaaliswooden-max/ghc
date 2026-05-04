@@ -37,8 +37,29 @@ operations suffice to drive haram-signal survival below any
 $\varepsilon > 0$.
 \end{theorem}
 
-\Cref{thm:survival} requires real analysis (mathlib) and lives on the
-Phase B+ roadmap.
+\Cref{thm:survival} requires a mutual-information formalization that
+mathlib does not yet ship; the full statement remains on the Phase~C+
+roadmap. We deliver the operationally-decisive specialization now: in
+the no-reinvention channel class (where $\Pr[Y=1 \mid X=0] = 0$ at
+every step), survival decays exponentially with the chain length.
+
+\begin{theorem}[Exponential survival under no-reinvention; mechanized]
+\label{thm:survival-exp}
+Let $\mathrm{Ws} = (W_1, \dotsc, W_n)$ be a list of binary stochastic
+channels, and write $\sigma(W) := \Pr[Y=1 \mid X=1]$ for the
+single-step survival probability. If $\sigma(W_i) \leq \rho$ for every
+$i$, then the chain's survival is bounded by $\rho^n$. Moreover, if a
+single $W_j$ has $\sigma(W_j) \leq \rho$, the chain's survival is
+bounded by $\rho$.
+\end{theorem}
+
+\begin{proof}[Proof (mechanized)]
+By induction on the channel list using elementary monotonicity of
+multiplication on $[0, 1]$; mechanized in
+\path{proofs-mathlib/GhcMathlib/Channel.lean} as
+\texttt{Channel.Chain.survival\_le\_pow} and
+\texttt{survival\_le\_of\_member}.
+\end{proof}
 
 \subsection{Deterministic kernel (mechanized)}
 

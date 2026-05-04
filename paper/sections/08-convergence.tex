@@ -27,8 +27,41 @@ Equivalently, $t = O\bigl(\bar c^2 \varepsilon^{-2}
 $\varepsilon$ with confidence $1 - \delta$.
 \end{theorem}
 
-The full Azuma--Hoeffding statement requires real analysis from mathlib
-and lives on the Phase B+ roadmap.
+The exponential-rate Azuma--Hoeffding statement requires the
+sub-Gaussian MGF bound (Hoeffding's lemma) which mathlib does not yet
+ship; that closure remains on the Phase~C+ roadmap. We do however
+deliver two intermediate concentration inequalities now, which
+together cover the operational use case:
+
+\begin{theorem}[Audit Chebyshev concentration; mechanized]
+\label{thm:audit-cheby}
+For any audit random variable $X \in L^2(\Omega, \mu)$ on a finite
+measure space and any precision $c > 0$,
+\[
+\mu\{\omega : c \leq |X(\omega) - \mathbb{E}[X]|\}
+\;\leq\; \mathrm{Var}(X) / c^2.
+\]
+With $n$ independent audits, the empirical mean concentrates with
+rate $\mathrm{Var}(X)/(n c^2)$.
+\end{theorem}
+
+\begin{theorem}[Audit Chernoff upper tail; mechanized]
+\label{thm:audit-chernoff}
+For any $t \geq 0$, any $\varepsilon$, and any $X$ with
+$e^{tX}$ integrable,
+$\mu\{\omega : \varepsilon \leq X(\omega)\}.\mathrm{toReal}
+   \leq e^{-t\varepsilon} \cdot \mathrm{mgf}(X, \mu, t).$
+\end{theorem}
+
+\begin{proof}[Proof (mechanized)]
+\Cref{thm:audit-cheby}: instantiate
+\texttt{ProbabilityTheory.meas\_ge\_le\_va\-riance\_div\_sq};
+mechanized as \texttt{Convergence.audit\_chebyshev} in
+\path{proofs-mathlib/GhcMathlib/Convergence.lean}.
+\Cref{thm:audit-chernoff}: instantiate
+\texttt{ProbabilityTheory.measure\_ge\_le\_exp\_mul\_mgf};
+mechanized as \texttt{Convergence.audit\_chernoff}.
+\end{proof}
 
 \subsection{Discrete kernel (mechanized)}
 

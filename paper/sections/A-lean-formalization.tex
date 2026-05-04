@@ -35,13 +35,41 @@ build. The kernel currently contains zero \texttt{sorry}s and zero
 unsafe \texttt{axiom}s, and compiles in under twenty seconds on a
 stock Ubuntu runner with no \texttt{mathlib} cache.
 
-\paragraph{Phase B+ extensions.} The mathlib-dependent statements ---
-the full \Cref{thm:survival} (mutual-information bound),
-\Cref{prop:diagnostics} (purity/entropy bounds on the density matrix),
-\Cref{thm:spectral} (Laplacian-spectrum invariance), and
-\Cref{thm:convergence} (Azuma--Hoeffding) --- are tracked under
-\path{docs/PLAN.md} as Phase B+ work and will live in a separate
-sub-library that depends on \texttt{mathlib4}.
+\paragraph{Phase B+ extensions (now mechanized).} The mathlib-backed
+contributions live in \path{proofs-mathlib/} and likewise contain zero
+\texttt{sorry}s and zero unsafe \texttt{axiom}s:
+
+\begin{center}
+\begin{tabular}{lll}
+\toprule
+Theorem & File & Identifier \\
+\midrule
+\Cref{thm:survival-exp} (exponential survival) &
+  \path{GhcMathlib/Channel.lean} &
+  \texttt{Channel.Chain.survival\_le\_pow} \\
+Density purity bound &
+  \path{GhcMathlib/Density.lean} &
+  \texttt{Density.Diag.purity\_bounds} \\
+Charpoly under relabel &
+  \path{GhcMathlib/Spectral.lean} &
+  \texttt{Spectral.charpoly\_relabel} \\
+\Cref{thm:audit-cheby} (Chebyshev) &
+  \path{GhcMathlib/Convergence.lean} &
+  \texttt{Convergence.audit\_chebyshev} \\
+\Cref{thm:audit-chernoff} (Chernoff) &
+  \path{GhcMathlib/Convergence.lean} &
+  \texttt{Convergence.audit\_chernoff} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\paragraph{Phase C+ track.} Statements that still need substantial
+mathlib infrastructure: the full mutual-information formulation of
+$\Ch$ (mathlib does not yet ship a mutual-information development);
+Hoeffding's lemma (sub-Gaussian MGF bound for bounded random
+variables); Azuma-Hoeffding for martingales; and the spectral-theorem
+reduction connecting the diagonal-basis density-matrix purity bound
+to abstract Hermitian density matrices.
 
 \paragraph{Smoke checks.} \path{proofs/Ghc/Smoke.lean} enumerates
 every kernel theorem with \verb|#check| and provides concrete

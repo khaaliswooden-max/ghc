@@ -31,8 +31,19 @@ eigenvalues are indistinguishable to such adversaries up to
 isospectrality.
 \end{theorem}
 
-\Cref{thm:spectral} requires linear algebra over $\mathbb{R}$ and lives
-on the Phase B+ track.
+\Cref{thm:spectral} reduces to the invariance of the
+\emph{characteristic polynomial} under simultaneous row/column
+permutation: a permuted matrix is similar to the original via a
+permutation matrix, hence has the same characteristic polynomial and
+therefore the same eigenvalue multiset. The polynomial-invariance
+form is now mechanized in
+\path{proofs-mathlib/GhcMathlib/Spectral.lean} via
+\texttt{Spectral.charpoly\_relabel}, with corresponding
+trace and determinant invariance theorems
+(\texttt{Spectral.trace\_relabel}, \texttt{Spectral.det\_relabel}).
+The full eigenvalue-multiset extraction (over $\mathbb{R}$ for
+symmetric Laplacians via the spectral theorem) remains on the Phase~C+
+roadmap.
 
 \subsection{Combinatorial kernel (mechanized)}
 

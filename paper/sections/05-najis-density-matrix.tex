@@ -37,7 +37,18 @@ $O(|\mathcal{S}|^3)$:
 \end{proposition}
 
 \Cref{prop:diagnostics} requires mathlib's \texttt{InnerProductSpace}
-machinery and is on the Phase B+ roadmap.
+machinery. The \emph{purity bound}
+$1/n \leq \Tr(\rhoN^2) \leq 1$ on the diagonal-basis representation
+(equivalent under the spectral theorem to the abstract Hermitian
+form) is now mechanized in
+\path{proofs-mathlib/GhcMathlib/Density.lean} via
+\texttt{Density.Diag.purity\_le\_one} (Cauchy--Schwarz on
+$w_i^2 \leq w_i$ for $w_i \in [0,1]$) and
+\texttt{Density.Diag.one\_div\_n\_le\_purity}
+(Chebyshev's sum inequality
+$(\sum w_i)^2 \leq n \sum w_i^2$ from
+\texttt{Mathlib.Algebra.Order.Chebyshev}).
+Von Neumann entropy bounds remain on the Phase~C+ roadmap.
 
 \subsection{Discrete kernel (mechanized)}
 

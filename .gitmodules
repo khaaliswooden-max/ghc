@@ -1,0 +1,9 @@
+[submodule "vendor/nanoGPT"]
+	path = vendor/nanoGPT
+	url = https://github.com/karpathy/nanoGPT.git
+[submodule "vendor/minGPT"]
+	path = vendor/minGPT
+	url = https://github.com/karpathy/minGPT.git
+[submodule "vendor/build-nanogpt"]
+	path = vendor/build-nanogpt
+	url = https://github.com/karpathy/build-nanogpt.git

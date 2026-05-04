@@ -47,6 +47,7 @@ datasets/      DVC manifests + license records
 notebooks/     Reproducibility notebooks (papermill)
 tools/         CI, release tooling, conformance suite
 docs/          Project plan and design notes
+vendor/        Vendored upstream references (git submodules)
 ```
 
 ## Getting started (when stubs are filled in)
@@ -80,3 +81,23 @@ GHC is research‑grade and pre‑v0.1. Issues and discussions are welcome;
 substantive PRs should reference the relevant theorem / spec section. All
 contributions are accepted under the dual MIT/Apache‑2.0 (code) or CC‑BY‑4.0
 (prose) license.
+
+## Vendored references
+
+Reference implementations from Andrej Karpathy are pinned as git submodules
+under `vendor/` for use by the ML pipelines in `services/` (and for general
+study). Upstream history is preserved; we do not fork.
+
+| Path | Upstream | Role |
+| --- | --- | --- |
+| `vendor/minGPT` | [karpathy/minGPT](https://github.com/karpathy/minGPT) | Clean PyTorch reference implementation; library-style `mingpt/` package with notebook demos. |
+| `vendor/nanoGPT` | [karpathy/nanoGPT](https://github.com/karpathy/nanoGPT) | Single-file rewrite of minGPT; `train.py` reproduces GPT-2 on OpenWebText. |
+| `vendor/build-nanogpt` | [karpathy/build-nanogpt](https://github.com/karpathy/build-nanogpt) | Companion to the "Let's reproduce GPT-2 (124M)" video; FineWeb prep + HellaSwag eval. |
+
+After cloning:
+
+```bash
+git submodule update --init --recursive
+# pull upstream updates:
+git submodule update --remote vendor/nanoGPT
+```

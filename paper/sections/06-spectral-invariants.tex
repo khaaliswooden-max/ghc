@@ -1,0 +1,38 @@
+\section{Spectral Provenance Invariants}
+\label{sec:spectral}
+
+\subsection{The provenance DAG}
+
+The history of a batch is a directed acyclic graph $G = (V, E, w)$ with
+$V$ the set of all upstream batches and operations, $E$ the
+``derives-from'' relation, and $w \colon E \to (0,1]$ the per-edge
+process-trust weight (computed from auditor reliability + sensor
+calibration).
+
+\subsection{The relabel/rename adversary}
+
+\begin{definition}[Adversary class]
+\label{def:adversary}
+$\mathcal{A}_{\mathrm{rl}}$ is the class of polynomial-time adversaries
+that may permute vertex labels and rename edges (e.g.\ recertify
+batches, substitute supplier identifiers) but may not alter the graph's
+combinatorial structure or edge weights.
+\end{definition}
+
+\subsection{Invariance theorem}
+
+\begin{theorem}[Spectral fingerprint]
+\label{thm:spectral}
+Let $L_G = D_G^{-1/2}(D_G - W_G) D_G^{-1/2}$ be the normalized
+weighted Laplacian \cite{chung} of the provenance DAG. Then
+$\spec(L_G)$ is invariant under every adversary in
+$\mathcal{A}_{\mathrm{rl}}$, and two graphs with the same multiset of
+eigenvalues are indistinguishable to such adversaries up to
+isospectrality.
+\end{theorem}
+
+In practice GHC stores the top-$k$ eigenvalues of $L_G$ as a
+``provenance fingerprint'' alongside each attestation; anomalies in
+recertified products manifest as $\ell_2$ deviations between fingerprints
+that exceed measurement noise. Implementation notes and benchmarks for
+$|V| \leq 10^6$ are in \Cref{sec:eval}.

@@ -1,0 +1,43 @@
+\section{Contamination Channel Capacity}
+\label{sec:capacity}
+
+\subsection{Setup}
+
+Consider a sequence of $n$ processing operations
+$f_1, f_2, \dotsc, f_n \in \mathrm{Hom}(\SC)$. Each operation acts on
+the (random) presence of a haram-bit $X \in \{0,1\}$ as a discrete
+memoryless channel $W_i \colon X \mapsto Y_i$ with transition matrix
+$\Pi_i$. Empirical estimates of $\Pi_i$ for canonical operations
+(centrifugation, distillation, washing cycles, etc.) are tabulated in
+\Cref{sec:eval}.
+
+\subsection{Capacity}
+
+\begin{definition}[Contamination channel capacity]
+\label{def:capacity}
+For a chain $W = W_n \circ \dotsb \circ W_1$ define
+\[
+   \Ch(W) \;=\; \max_{p_X} I(X; Y_n)
+\]
+where the maximum ranges over input distributions on
+$\{0,1\}$ subject to the operational admissibility constraints inherited
+from $\SC$.
+\end{definition}
+
+\begin{theorem}[Survival bound]
+\label{thm:survival}
+Under \cref{def:capacity},
+\[
+   \Pr[\, Y_n = 1 \mid X = 1 \,]
+   \;\leq\; 2^{\,\Ch(W) - n \cdot \delta(W)}
+\]
+where $\delta(W)$ is the per-step Kullback--Leibler dissipation of $W$.
+In particular, $n \geq \Ch(W) / \delta(W) - \log_2 \varepsilon^{-1}$
+operations suffice to drive haram-signal survival below any
+$\varepsilon > 0$.
+\end{theorem}
+
+\Cref{thm:survival} converts the qualitative ``thoroughness'' of a
+cleaning protocol into an auditable bit count. The Lean formalization is
+in \path{proofs/Ghc/Info.lean}; tabulated $\Pi_i$ for industrial
+operations are produced by \path{notebooks/04-channel-estimation.ipynb}.

@@ -1,0 +1,45 @@
+\section{The Najis Density Matrix}
+\label{sec:najis}
+
+\subsection{Provenance Hilbert space}
+
+For a finite set $\mathcal{S}$ of source-batch identifiers we define the
+provenance Hilbert space $\mathcal{H} = \mathbb{C}^{|\mathcal{S}|}$ with
+orthonormal basis $\{\,|s\rangle : s \in \mathcal{S}\,\}$. A pure
+provenance state is a unit vector $|\psi\rangle \in \mathcal{H}$;
+operationally, $|\langle s | \psi\rangle|^2$ is the (epistemic)
+probability that the batch in question originated at source $s$.
+
+\subsection{The mixed state $\rhoN$}
+
+\begin{definition}[Najis density matrix]
+\label{def:rhon}
+For a batch $B$ produced by combining sources $s_i$ with mass fractions
+$w_i$ and per-source provenance witnesses $|\psi_i\rangle$,
+\[
+   \rhoN(B) \;=\; \sum_i w_i\, |\psi_i\rangle\langle\psi_i|.
+\]
+Mixing is direct sum followed by partial trace over discarded
+sub-systems; separation is the corresponding adjoint.
+\end{definition}
+
+\subsection{Scalar diagnostics}
+
+\begin{proposition}
+\label{prop:diagnostics}
+$\rhoN(B)$ admits the following scalar reductions, each computable in
+$O(|\mathcal{S}|^3)$:
+\begin{enumerate}[label=(\roman*)]
+  \item \textbf{Purity} $\Tr(\rhoN^2) \in (1/|\mathcal{S}|, 1]$:
+        certification confidence.
+  \item \textbf{Von Neumann entropy} $S(\rhoN) = -\Tr(\rhoN \log \rhoN)$:
+        provenance uncertainty in bits.
+  \item \textbf{Najis spectral radius} $\lambda_{\max}(\rhoN \cdot N)$
+        for $N$ the haram-source projector: the dominant haram-mode of
+        the batch.
+\end{enumerate}
+\end{proposition}
+
+The Lean formalization (with reductions to mathlib's
+\texttt{InnerProductSpace} machinery) is in
+\path{proofs/Ghc/Quantum.lean}.

@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ghc.example/ns/v1/schemas/batch.json",
+  "title": "GHC Batch",
+  "description": "A halal-relevant batch entity (extends prov:Entity).",
+  "type": "object",
+  "required": ["@type", "@id", "ingredient", "quantity"],
+  "properties": {
+    "@type": { "const": "ghc:Batch" },
+    "@id": { "type": "string", "format": "uri" },
+    "ingredient": { "type": "string", "format": "uri" },
+    "quantity": {
+      "type": "object",
+      "required": ["value", "unit"],
+      "properties": {
+        "value": { "type": "number", "exclusiveMinimum": 0 },
+        "unit":  { "type": "string", "minLength": 1 }
+      }
+    },
+    "compliance": {
+      "type": "object",
+      "required": ["lattice", "authority"],
+      "properties": {
+        "lattice":     { "enum": ["halal", "mashbuh", "haram"] },
+        "authority":   { "type": "string", "format": "uri" },
+        "evidenceRef": { "type": "string", "format": "uri" }
+      }
+    }
+  }
+}

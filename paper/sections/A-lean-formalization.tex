@@ -1,0 +1,28 @@
+\section{Lean 4 Formalization Index}
+\label{app:lean}
+
+For each numbered theorem in the body, the table below points to the
+file and identifier in \path{proofs/}.
+
+\begin{center}
+\begin{tabular}{lll}
+\toprule
+Theorem & File & Identifier \\
+\midrule
+\Cref{thm:hcf} (Halal-Closure Functor) &
+  \path{Ghc/Category.lean} & \texttt{halalClosureFunctor} \\
+\Cref{thm:survival} (Survival bound) &
+  \path{Ghc/Info.lean} & \texttt{survivalBound} \\
+\Cref{prop:diagnostics} (Najis diagnostics) &
+  \path{Ghc/Quantum.lean} & \texttt{najisDiagnostics} \\
+\Cref{thm:spectral} (Spectral fingerprint) &
+  \path{Ghc/Spectral.lean} & \texttt{spectralFingerprint} \\
+\Cref{thm:convergence} (Compliance convergence) &
+  \path{Ghc/Convergence.lean} & \texttt{complianceConverges} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+CI gates the paper build on \texttt{lake build} succeeding for every
+identifier above; a missing or \texttt{sorry}-bearing theorem fails the
+build.

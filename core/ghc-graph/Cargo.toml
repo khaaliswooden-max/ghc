@@ -1,0 +1,15 @@
+[package]
+name        = "ghc-graph"
+description = "Spectral provenance invariants for GHC."
+version.workspace      = true
+edition.workspace      = true
+rust-version.workspace = true
+license.workspace      = true
+repository.workspace   = true
+authors.workspace      = true
+
+[dependencies]
+nalgebra  = { workspace = true }
+petgraph  = { workspace = true }
+serde     = { workspace = true }
+thiserror = { workspace = true }

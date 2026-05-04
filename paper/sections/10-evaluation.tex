@@ -1,0 +1,33 @@
+\section{Evaluation}
+\label{sec:eval}
+
+We evaluate GHC along four axes: theorem coverage, runtime performance,
+ML accuracy, and end-to-end demonstrability. Detailed numbers will
+populate this section as Phases C--E complete; the structure below is
+the locked evaluation plan referenced from the spec.
+
+\subsection{Theorem coverage}
+We report the fraction of theorems in this paper that typecheck under
+\texttt{lake build}, broken down by section. Target: $100\%$ at v0.1.
+
+\subsection{ZK performance}
+For zk-Halal Groth16 over BLS12-381 we report
+proving time, verification time, proof size, and circuit constraint
+count, parameterized by provenance-DAG size $|V| \in \{10^2, 10^3,
+10^4\}$.
+
+\subsection{ML accuracy}
+Ingredient-OCR F1 on a held-out test set of multilingual product labels
+(Arabic, Malay, Urdu, Indonesian, English); GNN supply-chain risk
+PR-AUC on a synthetic-plus-GDST evaluation set.
+
+\subsection{End-to-end demos}
+Three cross-domain demos exercise the full pipeline:
+\begin{enumerate}
+  \item \textbf{Beef sample:} farm $\to$ abattoir $\to$ processor
+        $\to$ retailer with EPCIS events, zk-Halal VC, Fabric anchoring.
+  \item \textbf{Pharmaceutical excipient:} gelatin source-to-API audit
+        with $\rhoN$ purity scoring.
+  \item \textbf{Sukuk contract:} AAOIFI-aligned attestation chain with
+        federated multi-authority lattice.
+\end{enumerate}

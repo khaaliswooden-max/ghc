@@ -1,0 +1,41 @@
+\section{Related Work}
+\label{sec:related}
+
+\paragraph{Halal traceability.}
+Tieman's foundational analyses of halal supply-chain management
+\cite{tieman} and the empirical literature on halal integrity in
+\emph{Food Control} \cite{ali_foodcontrol} establish the operational
+vocabulary GHC builds on. Recent surveys of blockchain-based halal
+traceability \cite{khan2020} document a proliferation of platform-specific
+proposals; GHC differs in providing an authority-parametric mathematical
+substrate rather than a single-stack platform.
+
+\paragraph{Provenance and traceability standards.}
+W3C PROV-O \cite{provo} provides the canonical RDF vocabulary for
+provenance; GS1 EPCIS~2.0 \cite{epcis2} provides the standard event
+schema for supply-chain visibility; GDST extends EPCIS to seafood. GHC
+adopts EPCIS~2.0 as a baseline and contributes a halal-specific extension
+profile (\Cref{sec:impl}).
+
+\paragraph{Compositional semantics.}
+The categorical perspective on compositional systems is developed in
+\cite{maclane,fongspivak,spivak2012}. Recent work on functorial supply-chain
+modeling has established the viability of categorical methods for
+industrial provenance; GHC instantiates this for compliance lattices.
+
+\paragraph{Information theory of contamination.}
+The treatment of contamination as a noisy-channel problem draws on
+\cite{covertom} and on Bennett's thermodynamics of information
+\cite{bennett82}. We are not aware of prior work that bounds
+contamination survival in compliance terms via channel capacity.
+
+\paragraph{Quantum statistical mechanics of mixed populations.}
+The use of density matrices to represent classical mixtures with
+quantum-style partial-trace semantics follows \cite{nielsenchuang,petz};
+the application to provenance is, to our knowledge, novel.
+
+\paragraph{Zero-knowledge attestations.}
+Modern SNARK constructions \cite{groth16,plonk,halo2} now make
+practical proving of complex predicates feasible in milliseconds. GHC's
+zk-Halal circuits (\Cref{sec:zkhalal}) compile compliance-lattice
+membership to arithmetic circuits suitable for these systems.

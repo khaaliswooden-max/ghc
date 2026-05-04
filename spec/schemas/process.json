@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ghc.example/ns/v1/schemas/process.json",
+  "title": "GHC Process",
+  "description": "A processing step extending prov:Activity and EPCIS TransformationEvent.",
+  "type": "object",
+  "required": ["@type", "@id", "operation", "inputs", "outputs"],
+  "properties": {
+    "@type": { "const": "ghc:Process" },
+    "@id": { "type": "string", "format": "uri" },
+    "operation": { "type": "string", "format": "uri" },
+    "inputs":  {
+      "type": "array",
+      "items": { "type": "string", "format": "uri" },
+      "minItems": 1
+    },
+    "outputs": {
+      "type": "array",
+      "items": { "type": "string", "format": "uri" },
+      "minItems": 1
+    },
+    "channel": {
+      "type": "object",
+      "properties": {
+        "haramBitTransitionMatrix": { "type": "string", "format": "uri" },
+        "calibration":              { "type": "string", "format": "uri" }
+      }
+    }
+  }
+}

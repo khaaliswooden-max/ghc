@@ -1,0 +1,32 @@
+cff-version: 1.2.0
+title: "Global Halal Compliance (GHC): A Cross-Domain Unified Protocol"
+message: >-
+  If you use this work, please cite it as below.
+  Once the v0.1 preprint is released, update with arXiv DOI.
+type: software
+authors:
+  - name: "The GHC Authors"
+repository-code: "https://github.com/khaaliswooden-max/ghc"
+abstract: >-
+  GHC is a cross-domain (food, pharma/cosmetics, Islamic finance,
+  logistics) protocol for halal compliance grounded in category theory,
+  information theory, quantum statistical mechanics, graph spectra, and
+  zero-knowledge cryptography. The repository contains a machine-checked
+  Lean 4 formalization, a Rust reference implementation, a protocol
+  specification, and a peer-reviewable whitepaper.
+keywords:
+  - halal
+  - supply chain
+  - category theory
+  - information theory
+  - zero-knowledge proofs
+  - traceability
+  - Islamic finance
+  - PROV-O
+  - EPCIS
+license:
+  - MIT
+  - Apache-2.0
+  - CC-BY-4.0
+version: 0.0.1
+date-released: "2026-05-04"

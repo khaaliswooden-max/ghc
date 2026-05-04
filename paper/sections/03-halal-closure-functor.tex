@@ -1,0 +1,56 @@
+\section{The Halal-Closure Functor}
+\label{sec:hcf}
+
+\subsection{The supply-chain category $\SC$}
+
+\begin{definition}[Supply-chain category]
+\label{def:sc}
+$\SC$ is the symmetric monoidal category whose
+\begin{itemize}
+  \item \textbf{objects} are batches: triples $(I, q, \mu)$ where $I$ is
+        an ingredient identifier, $q \in \mathbb{R}_{\geq 0}$ is a
+        quantity, and $\mu$ is a provenance witness;
+  \item \textbf{morphisms} $f \colon B_1 \to B_2$ are processing steps
+        (slaughter, mixing, separation, packaging, transport, audit),
+        each carrying a $\sigma$-algebra of admissible operational
+        constraints;
+  \item \textbf{tensor product} $\otimes$ is parallel composition
+        (independent processing of co-located batches);
+  \item \textbf{unit} $I$ is the empty batch.
+\end{itemize}
+\end{definition}
+
+\subsection{The compliance lattice $\Lat$}
+
+\begin{definition}[Compliance lattice]
+\label{def:lat}
+$\Lat$ is the complete distributive lattice
+$\{\halal, \mashbuh, \haram\}$ with $\halal \prec \mashbuh \prec \haram$,
+augmented with an authority parameter $A$ so that
+$\Lat = \prod_{A \in \mathcal{A}} \Lat_A$ for a (federated) authority
+set $\mathcal{A}$. Meet $\sqcap$ models conjunction of authoritative
+opinion; join $\sqcup$ models disjunction.
+\end{definition}
+
+\subsection{The functor}
+
+\begin{theorem}[Halal-Closure Functor]
+\label{thm:hcf}
+There exists a strong monoidal functor $\HCF \colon \SC \to \Lat$ satisfying
+\begin{enumerate}[label=(H\arabic*)]
+  \item \emph{Compositionality:} $\HCF(g \circ f) = \HCF(g) \sqcap_\Lat \HCF(f)$.
+  \item \emph{Tensor preservation:} $\HCF(B_1 \otimes B_2) =
+        \HCF(B_1) \sqcup_\Lat \HCF(B_2)$.
+  \item \emph{Authority refinement:} for each $A \in \mathcal{A}$ the
+        composite $\pi_A \circ \HCF$ is a functor $\SC \to \Lat_A$.
+\end{enumerate}
+The Lean~4 proof of \cref{thm:hcf} appears in
+\path{proofs/Ghc/Category.lean}.
+\end{theorem}
+
+\begin{remark}
+\Cref{thm:hcf} is the workhorse of GHC: it justifies the entire pipeline
+from event-level capture (EPCIS) to product-level attestation (zk-Halal).
+The compositionality clause means a verifier can recompute compliance
+status of a finished product from any honest intermediate evidence.
+\end{remark}

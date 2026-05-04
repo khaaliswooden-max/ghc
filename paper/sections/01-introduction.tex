@@ -1,0 +1,57 @@
+\section{Introduction}
+\label{sec:intro}
+
+Halal compliance is, at the regulatory frontier, a qualitative discipline.
+Standards such as MS~1500:2019 \cite{ms1500}, OIC/SMIIC~1 \cite{smiic1}, and
+GSO~2055-1 \cite{gso2055} encode juristic principles into operational
+checklists, but the binding judgments --- ``reasonable precaution'' against
+cross-contamination, ``trustworthy'' certification chains, ``negligible''
+trace contaminants --- remain expert-mediated and locally interpreted. The
+result is a globally fragmented compliance landscape where mutual
+recognition between certifying bodies is the exception rather than the
+rule, where supply-chain shocks expose the limits of paper-based
+attestations, and where billions of consumers cannot verify, even in
+principle, the provenance claims attached to the products they buy.
+
+This paper introduces \textbf{Global Halal Compliance (GHC)}, a
+cross-domain protocol that replaces qualitative judgments with verified,
+quantitative instruments without displacing the underlying juristic
+authority. GHC's central thesis is that the compositional structure of a
+modern supply chain --- batches, transformations, mixings, separations,
+audits --- is exactly the structure studied by category theory
+\cite{maclane,fongspivak}, and that the propagation of compliance status
+through that structure is naturally modeled by the tools of information
+theory \cite{covertom}, open-system quantum mechanics \cite{nielsenchuang},
+spectral graph theory \cite{chung}, and zero-knowledge cryptography
+\cite{gmr1989,groth16}.
+
+\paragraph{Contributions.}
+The remainder of this paper develops six contributions, each
+machine-checked in Lean~4 \cite{lean4}, implemented in the GHC reference
+codebase, and standardized in the GHC Protocol specification:
+\begin{enumerate}
+  \item The \textbf{Halal-Closure Functor} $\HCF \colon \SC \to \Lat$
+        (\Cref{sec:hcf}), establishing compositional semantics for
+        \halal/\mashbuh/\haram\ status.
+  \item The \textbf{Contamination Channel Capacity} $\Ch$
+        (\Cref{sec:capacity}), a closed-form upper bound on haram-signal
+        survival.
+  \item The \textbf{Najis Density Matrix} $\rhoN$
+        (\Cref{sec:najis}), giving a single scalar provenance-purity
+        score.
+  \item \textbf{Spectral provenance invariants} (\Cref{sec:spectral})
+        for tamper-evident DAG fingerprinting.
+  \item The \textbf{zk-Halal} attestation scheme (\Cref{sec:zkhalal})
+        reconciling transparency with supplier privacy.
+  \item The \textbf{Compliance Convergence Theorem}
+        (\Cref{sec:convergence}) quantifying audit sufficiency.
+\end{enumerate}
+
+\paragraph{Scope and non-goals.}
+GHC formalizes the \emph{propagation} of compliance status; it does not
+adjudicate the underlying juristic questions. Edge cases (e.g.\ the
+status of a particular emulsifier, or the validity of a specific
+slaughter method) remain the prerogative of recognized Shariah
+authorities. GHC's compliance lattice is parametric in the authority,
+and the protocol explicitly supports federated multi-authority operation
+with first-class encoding of dissent.

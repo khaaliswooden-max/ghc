@@ -1,0 +1,33 @@
+\section{Discussion and Future Work}
+\label{sec:discussion}
+
+\paragraph{Authority federation.}
+GHC's compliance lattice is parametric in a Shariah authority. The
+v0.1 spec supports federated operation by indexing $\Lat$ over an
+authority set $\mathcal{A}$ with explicit dissent encoding. A future
+extension will study the semantics of cross-authority appeals using
+the topos-theoretic machinery of \cite{maclane}.
+
+\paragraph{Privacy budget.}
+zk-Halal is privacy-\emph{preserving} in the cryptographic sense, but
+the publication of provenance-fingerprint spectra leaks coarse
+structural information about supply chains. We sketch a
+differentially-private extension and leave its formal analysis to
+subsequent work.
+
+\paragraph{Hardware roots of trust.}
+The deterministic capacity bounds in \Cref{sec:capacity} assume honest
+sensor calibration; integrating remote-attestation-backed sensors
+(e.g.\ Intel TDX, AWS Nitro) into the witness format is a natural next
+step.
+
+\paragraph{Standardization track.}
+The v0.1 spec is targeted at an OIC/SMIIC working-group submission,
+with parallel engagement of GS1 for an EPCIS halal-extension profile
+and W3C for a Verifiable-Credentials schema annex.
+
+\paragraph{Acknowledgements.}
+We acknowledge in advance the contributions of the Shariah scholars,
+standardization editors, and open-source maintainers whose work GHC
+will build on. Concrete acknowledgements will be inserted as the
+project moves out of bootstrap.

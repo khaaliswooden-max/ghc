@@ -1,0 +1,21 @@
+[package]
+name        = "ghc-zk"
+description = "zk-Halal SNARK circuits and verifier (arkworks)."
+version.workspace      = true
+edition.workspace      = true
+rust-version.workspace = true
+license.workspace      = true
+repository.workspace   = true
+authors.workspace      = true
+
+[dependencies]
+ark-ff        = { workspace = true }
+ark-ec        = { workspace = true }
+ark-bls12-381 = { workspace = true }
+ark-groth16   = { workspace = true }
+ark-relations = { workspace = true }
+ark-r1cs-std  = { workspace = true }
+ark-snark     = { workspace = true }
+ark-serialize = { workspace = true }
+serde         = { workspace = true }
+thiserror     = { workspace = true }

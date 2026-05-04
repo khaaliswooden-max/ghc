@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ghc.example/ns/v1/schemas/halal-attestation.json",
+  "title": "GHC Halal Attestation",
+  "description": "W3C Verifiable Credential carrying a zk-Halal proof.",
+  "type": "object",
+  "required": ["@context", "type", "issuer", "credentialSubject", "proof"],
+  "properties": {
+    "@context": {
+      "type": "array",
+      "items": { "type": "string" },
+      "contains": { "const": "https://ghc.example/ns/v1" }
+    },
+    "type": {
+      "type": "array",
+      "items": { "type": "string" },
+      "contains": { "const": "ghc:HalalAttestation" }
+    },
+    "issuer":    { "type": "string", "minLength": 1 },
+    "validFrom": { "type": "string", "format": "date-time" },
+    "credentialSubject": {
+      "type": "object",
+      "required": ["id", "ghc:lattice", "ghc:scheme",
+                   "ghc:circuit", "ghc:commitment", "ghc:proof"],
+      "properties": {
+        "id":              { "type": "string", "format": "uri" },
+        "ghc:lattice":     { "enum": ["halal", "mashbuh", "haram"] },
+        "ghc:scheme":      { "enum": [
+          "groth16-bls12-381", "plonk-bn254", "stark-poseidon"
+        ] },
+        "ghc:circuit":     { "type": "string", "minLength": 1 },
+        "ghc:commitment":  { "type": "string", "pattern": "^0x[0-9a-fA-F]+$" },
+        "ghc:proof":       { "type": "string", "pattern": "^0x[0-9a-fA-F]+$" }
+      }
+    },
+    "proof": { "type": "object" }
+  }
+}

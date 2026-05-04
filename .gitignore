@@ -1,0 +1,59 @@
+# OS / editor
+.DS_Store
+*.swp
+*~
+.idea/
+.vscode/
+
+# LaTeX
+*.aux
+*.log
+*.out
+*.toc
+*.bbl
+*.blg
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+paper/main.pdf
+
+# Rust
+target/
+Cargo.lock
+**/*.rs.bk
+
+# Lean
+build/
+.lake/
+lake-packages/
+lakefile.olean
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+dist/
+build/
+
+# Node (for circom / snarkjs / hardhat)
+node_modules/
+artifacts/
+cache/
+
+# Notebooks
+.ipynb_checkpoints/
+
+# Data
+datasets/raw/
+datasets/processed/
+*.dvc-cache/
+
+# Secrets
+.env
+.env.*
+!.env.example

@@ -1,0 +1,46 @@
+\section{zk-Halal Attestation}
+\label{sec:zkhalal}
+
+\subsection{Statement}
+
+The prover is a producer in possession of (i) a provenance DAG $G$,
+(ii) per-edge process-trust weights $w$, and (iii) the per-source
+compliance labels $\ell$. The verifier is any consumer or regulator.
+The relation we prove in zero knowledge is
+\[
+  \mathcal{R}_{\mathrm{halal}} = \bigl\{\,
+     (x, \omega) :
+        x = \mathsf{Comm}(G, w, \ell) \;\wedge\;
+        \HCF(\omega) \succeq \halal
+  \,\bigr\}
+\]
+where $\omega = (G, w, \ell)$ is the witness, $\mathsf{Comm}$ is a
+binding hash commitment (Poseidon over BLS12-381), and $\HCF$ is
+encoded as an arithmetic circuit by composing the constituent
+operations of $G$.
+
+\subsection{Constructions}
+
+\begin{itemize}
+  \item \textbf{Native (off-chain) verifier}: Groth16
+        \cite{groth16} over BLS12-381, implemented in
+        \texttt{core/ghc-zk} on top of arkworks
+        \cite{arkworks}. Trusted-setup is per-circuit; the
+        circuit is fixed once the spec is frozen.
+  \item \textbf{On-chain verifier}: a Circom port
+        \cite{circom} of the same circuit, with a Solidity
+        verifier deployed under \texttt{integrations/dlt}.
+  \item \textbf{Universal-setup variant}: PLONK \cite{plonk} for
+        deployments where per-circuit ceremonies are infeasible.
+  \item \textbf{Transparent variant}: a STARK port for
+        post-quantum settings; planned for v0.2.
+\end{itemize}
+
+\subsection{Security}
+
+Soundness reduces to the discrete-log assumption on BLS12-381 for
+Groth16, and to the AGM + KZG \cite{kzg} assumptions for PLONK. Zero
+knowledge is statistical against unbounded verifiers when the
+trusted-setup parameters are honestly generated. Privacy of suppliers
+and recipes is captured formally by an indistinguishability game in
+\Cref{sec:eval}.

@@ -1,0 +1,41 @@
+[workspace]
+resolver = "2"
+members = [
+  "ghc-algebra",
+  "ghc-graph",
+  "ghc-zk",
+]
+
+[workspace.package]
+version       = "0.0.1"
+edition       = "2021"
+rust-version  = "1.78"
+license       = "MIT OR Apache-2.0"
+repository    = "https://github.com/khaaliswooden-max/ghc"
+authors       = ["The GHC Authors"]
+
+[workspace.dependencies]
+# Linear algebra
+nalgebra        = "0.33"
+ndarray         = "0.16"
+
+# Graph spectra
+petgraph        = "0.6"
+
+# arkworks zk stack
+ark-ff          = "0.4"
+ark-ec          = "0.4"
+ark-bls12-381   = "0.4"
+ark-groth16     = "0.4"
+ark-relations   = "0.4"
+ark-r1cs-std    = "0.4"
+ark-snark       = "0.4"
+ark-serialize   = "0.4"
+
+# Serde / errors
+serde           = { version = "1", features = ["derive"] }
+serde_json      = "1"
+thiserror       = "1"
+
+# Test infra
+proptest        = "1"

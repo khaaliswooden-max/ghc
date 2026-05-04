@@ -1,0 +1,35 @@
+\section{The Compliance Convergence Theorem}
+\label{sec:convergence}
+
+A practical question for any audit-driven regime is: \emph{how many
+audits are enough?} GHC answers this quantitatively under a martingale
+model.
+
+\subsection{Audit model}
+
+Let $\theta^\star \in \Lat$ be the (unknown) true compliance state of a
+producer, and let $(\theta_t)_{t \geq 1}$ be the GHC posterior after $t$
+audits. Each audit returns a noisy observation
+$O_t = \theta^\star + \xi_t$ where $\xi_t$ is a bounded martingale
+difference $|\xi_t| \leq c_t$ adapted to $\mathcal{F}_t$.
+
+\subsection{Convergence}
+
+\begin{theorem}[Compliance convergence]
+\label{thm:convergence}
+Under the assumptions above,
+\[
+   \Pr\!\bigl[\,\|\theta_t - \theta^\star\| \geq \varepsilon\,\bigr]
+   \;\leq\; 2 \exp\!\bigl( -2 \varepsilon^2 \cdot t \cdot
+   \bar c^{-2} \bigr)
+   \quad\text{(Azuma--Hoeffding \cite{azuma})}.
+\]
+Equivalently, $t = O\bigl(\bar c^2 \varepsilon^{-2}
+\log \delta^{-1}\bigr)$ audits suffice to bound posterior error by
+$\varepsilon$ with confidence $1 - \delta$.
+\end{theorem}
+
+\Cref{thm:convergence} converts the historically-discretionary question
+``how many audits per year?'' into a closed-form function of certifier
+reliability ($\bar c$) and target tolerance ($\varepsilon, \delta$).
+Lean formalization is in \path{proofs/Ghc/Convergence.lean}.

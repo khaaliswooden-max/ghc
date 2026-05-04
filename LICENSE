@@ -1,0 +1,24 @@
+Global Halal Compliance (GHC) is dual-licensed.
+
+CODE
+----
+All source code in this repository — including but not limited to
+`core/`, `services/`, `proofs/`, `tools/`, and `integrations/` — is
+licensed under either of
+
+  * MIT License (see LICENSE-MIT)
+  * Apache License, Version 2.0 (see LICENSE-APACHE)
+
+at your option.
+
+Unless you explicitly state otherwise, any contribution intentionally
+submitted for inclusion in the work by you, as defined in the
+Apache-2.0 license, shall be dual licensed as above, without any
+additional terms or conditions.
+
+PROSE, SPEC, AND DATA
+---------------------
+The whitepaper (`paper/`), protocol specification (`spec/`), notebooks
+(`notebooks/`), and dataset manifests (`datasets/`) are licensed under
+the Creative Commons Attribution 4.0 International License
+(CC-BY-4.0). See https://creativecommons.org/licenses/by/4.0/ .

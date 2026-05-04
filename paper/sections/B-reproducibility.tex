@@ -1,0 +1,16 @@
+\section{Reproducibility}
+\label{app:repro}
+
+Every numerical result and figure in this paper is regenerated from the
+notebooks under \path{notebooks/} via papermill, with datasets pinned
+by content hash via DVC \cite{dvc}. The top-level recipe is
+\texttt{make repro}, which:
+\begin{enumerate}
+  \item resolves DVC pointers in \path{datasets/};
+  \item executes notebooks in dependency order;
+  \item regenerates figures into \path{paper/figures/};
+  \item rebuilds the paper PDF.
+\end{enumerate}
+A successful CI run on the \texttt{main} branch is the canonical
+reproducibility certificate; per-release builds are archived to
+Zenodo.

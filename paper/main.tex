@@ -1,0 +1,93 @@
+\documentclass[11pt,a4paper]{article}
+
+% --- packages ---------------------------------------------------------------
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{bm}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{cleveref}
+\usepackage{booktabs}
+\usepackage{tikz}
+\usetikzlibrary{cd}            % commutative diagrams
+\usepackage[backend=biber,style=numeric,sorting=none]{biblatex}
+\addbibresource{bib/ghc.bib}
+
+% --- theorem environments ---------------------------------------------------
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{example}[theorem]{Example}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+% --- macros -----------------------------------------------------------------
+\newcommand{\SC}{\mathbf{SC}}                  % supply-chain category
+\newcommand{\Lat}{\mathbf{L}}                  % compliance lattice
+\newcommand{\HCF}{H}                            % halal-closure functor
+\newcommand{\halal}{\textit{ḥal\=al}}
+\newcommand{\haram}{\textit{ḥar\=am}}
+\newcommand{\mashbuh}{\textit{mashb\=uh}}
+\newcommand{\najis}{\textit{naj\=as}}
+\newcommand{\Ch}{C_{h}}
+\newcommand{\rhoN}{\rho_{n}}
+\DeclareMathOperator{\Tr}{Tr}
+\DeclareMathOperator{\spec}{spec}
+
+\title{Global Halal Compliance:\\
+A Cross-Domain Unified Protocol with Verified Mathematical Foundations}
+\author{The GHC Authors}
+\date{Draft v0.0.1 --- \today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We present \textbf{Global Halal Compliance (GHC)}, a cross-domain
+protocol unifying halal compliance across food, pharmaceuticals,
+cosmetics, Islamic finance, and logistics under a single mathematical
+substrate. The protocol is grounded in six novel, machine-checked
+contributions: (1) the \emph{Halal-Closure Functor} mapping a symmetric
+monoidal category of supply-chain processes to a complete distributive
+compliance lattice; (2) the \emph{Contamination Channel Capacity}
+$\Ch$, a closed-form information-theoretic upper bound on
+haram-signal survival across processing chains; (3) the \emph{Najis
+Density Matrix} $\rhoN$ borrowed from open-system quantum
+statistical mechanics; (4) \emph{spectral provenance invariants} on
+provenance DAGs that resist relabel/rename adversaries; (5) a
+\emph{zk-Halal} attestation scheme reconciling open traceability with
+supplier privacy; and (6) a \emph{Compliance Convergence Theorem}
+quantifying audit sufficiency at rate $O(1/\sqrt{n})$. All theorems
+are formalized in Lean~4 \cite{lean4}; reference implementations are
+provided in Rust and Python; the protocol is specified as a versioned
+open standard with JSON Schema and EPCIS~2.0 \cite{epcis2} extensions.
+\end{abstract}
+
+\tableofcontents
+
+\input{sections/01-introduction}
+\input{sections/02-related-work}
+\input{sections/03-halal-closure-functor}
+\input{sections/04-contamination-capacity}
+\input{sections/05-najis-density-matrix}
+\input{sections/06-spectral-invariants}
+\input{sections/07-zk-halal}
+\input{sections/08-convergence}
+\input{sections/09-implementation}
+\input{sections/10-evaluation}
+\input{sections/11-discussion}
+
+\printbibliography
+
+\appendix
+\input{sections/A-lean-formalization}
+\input{sections/B-reproducibility}
+
+\end{document}

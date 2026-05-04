@@ -20,6 +20,7 @@ ark-relations = { workspace = true }
 ark-r1cs-std  = { workspace = true }
 ark-snark     = { workspace = true }
 ark-serialize = { workspace = true }
+ark-crypto-primitives = { workspace = true }
 serde         = { workspace = true }
 thiserror     = { workspace = true }
 rand          = { workspace = true }

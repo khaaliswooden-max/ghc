@@ -26,7 +26,9 @@
         "id":              { "type": "string", "format": "uri" },
         "ghc:lattice":     { "enum": ["halal", "mashbuh", "haram"] },
         "ghc:scheme":      { "enum": [
-          "groth16-bls12-381", "plonk-bn254", "stark-poseidon"
+          "groth16-bls12-381-poseidon",
+          "plonk-bn254-poseidon",
+          "stark-poseidon"
         ] },
         "ghc:circuit":     { "type": "string", "minLength": 1 },
         "ghc:commitment":  { "type": "string", "pattern": "^0x[0-9a-fA-F]+$" },

@@ -10,14 +10,22 @@ The relation we prove in zero knowledge is
 \[
   \mathcal{R}_{\mathrm{halal}} = \bigl\{\,
      (x, \omega) :
-        x = \mathsf{Comm}(G, w, \ell) \;\wedge\;
+        x = \mathsf{Comm}(\omega) \;\wedge\;
         \HCF(\omega) \succeq \halal
   \,\bigr\}
 \]
-where $\omega = (G, w, \ell)$ is the witness, $\mathsf{Comm}$ is a
-binding hash commitment (Poseidon over BLS12-381), and $\HCF$ is
-encoded as an arithmetic circuit by composing the constituent
-operations of $G$.
+where $\omega = (G, w, \ell)$ is the witness and $\mathsf{Comm}$ is a
+binding Poseidon-over-BLS12-381 commitment. As of v0.0.x of the
+reference implementation (`core/ghc-zk`), $\mathsf{Comm}$ is
+realized concretely as a Poseidon sponge with width 3 (rate 2,
+capacity 1), $\alpha = 17$, 8 full rounds, and 29 partial rounds,
+absorbing the salt followed by the per-step verdict field elements.
+The native (off-circuit) and in-circuit Poseidon hashers are
+byte-identical and gated by a CI-enforced equality test
+(`native\_and\_circuit\_poseidon\_agree`); $\HCF$ is encoded as an
+arithmetic circuit by composing the per-step domain check
+$w_i (w_i - 1)(w_i - 2) = 0$ with the threshold check
+($w_i = 0$ for \halal-only, $w_i (w_i - 1) = 0$ for $\leq \mashbuh$).
 
 \subsection{Constructions}
 

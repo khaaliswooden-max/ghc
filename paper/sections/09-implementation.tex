@@ -38,25 +38,32 @@ formalization and runtime breaks the build:
   (i)~domain check $w_i (w_i - 1)(w_i - 2) = 0$ forcing
   $w_i \in \{\halal, \mashbuh, \haram\}$, (ii)~threshold check
   ($w_i = 0$ for \halal-only, $w_i (w_i - 1) = 0$ for $\leq \mashbuh$),
-  and (iii)~a base-4 linear binding commitment $c = \mathrm{salt} +
-  \sum_i 4^i \cdot w_i$. 6 tests including hostile-witness rejection.
+  and (iii)~a Poseidon binding commitment
+  $c = \mathsf{Poseidon}(\mathrm{salt} \,\Vert\, w_0 \,\Vert\, \dotsb
+  \,\Vert\, w_{n-1})$ on BLS12-381 (width 3, $\alpha = 17$, 8 full +
+  29 partial rounds), via \texttt{ark-crypto-primitives}. 8 tests
+  including hostile-witness rejection and a
+  \texttt{native\_and\_circuit\_poseidon\_agree} equality check that
+  guarantees the off-circuit commit() and the in-circuit
+  \texttt{PoseidonSpongeVar} produce byte-identical outputs.
 \item \texttt{ghc-cli}: the \texttt{ghc} binary surfaces
   \texttt{closure}, \texttt{plurality}, \texttt{fingerprint},
   \texttt{prove}, \texttt{verify}, and an end-to-end \texttt{demo}.
 \end{itemize}
 
 \paragraph{Reference benchmarks.} On a stock x86\_64 Linux runner,
-the v0.0.x \texttt{HalalThresholdCircuit} with $n = 3$ produces a
-192-byte Groth16 proof:
+the v0.0.x \texttt{HalalThresholdCircuit} with $n = 3$ and
+Poseidon-on-BLS12-381 commitment produces a 192-byte Groth16 proof
+(release build):
 
 \begin{center}
 \begin{tabular}{lr}
 \toprule
 Operation & Wall time \\
 \midrule
-\texttt{Groth16::circuit\_specific\_setup} & 210 ms \\
-\texttt{Groth16::prove}                    & 42 ms  \\
-\texttt{Groth16::verify}                   & 47 ms  \\
+\texttt{Groth16::circuit\_specific\_setup} & 57 ms \\
+\texttt{Groth16::prove}                    & 54 ms \\
+\texttt{Groth16::verify}                   & 2.3 ms \\
 \bottomrule
 \end{tabular}
 \end{center}

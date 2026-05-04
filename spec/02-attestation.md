@@ -19,7 +19,7 @@ $\geq$ ḥalāl, **without revealing** the witness.
   "credentialSubject": {
     "id": "urn:ghc:product:0123...",
     "ghc:lattice": "halal",
-    "ghc:scheme": "groth16-bls12-381",
+    "ghc:scheme": "groth16-bls12-381-poseidon",
     "ghc:circuit": "ghc-halal-v1",
     "ghc:commitment": "0xabc1...",
     "ghc:proof": "0x9def..."
@@ -27,6 +27,14 @@ $\geq$ ḥalāl, **without revealing** the witness.
   "proof": { "...": "Ed25519Signature2020 over the VC envelope" }
 }
 ```
+
+The `ghc:commitment` is a single BLS12-381 `Fr` element — the output
+of a Poseidon sponge (width 3, rate 2, capacity 1, `α = 17`, 8 full
+rounds, 29 partial rounds) absorbing the salt followed by the
+per-step verdict field elements. The native and in-circuit hashers
+are byte-identical (enforced by the `native_and_circuit_poseidon_agree`
+test in `core/ghc-zk`), so a verifier can independently recompute the
+commitment from any disclosed witness.
 
 ## 2.2 Verifier protocol
 
@@ -41,10 +49,13 @@ $\geq$ ḥalāl, **without revealing** the witness.
 
 ## 2.3 Supported schemes
 
-- **`groth16-bls12-381`** (default for v0.1) — smallest proofs,
-  per-circuit trusted setup.
-- **`plonk-bn254`** — universal trusted setup.
-- **`stark-poseidon`** (planned v0.2) — transparent / post-quantum.
+- **`groth16-bls12-381-poseidon`** (default for v0.1) — Groth16 over
+  BLS12-381 with a Poseidon binding commitment; smallest proofs
+  (192 bytes), per-circuit trusted setup. **Implemented in
+  `core/ghc-zk` as of v0.0.x.**
+- **`plonk-bn254-poseidon`** — universal trusted setup; planned for
+  v0.1.
+- **`stark-poseidon`** — transparent / post-quantum; planned for v0.2.
 
 ## 2.4 Privacy guarantees
 

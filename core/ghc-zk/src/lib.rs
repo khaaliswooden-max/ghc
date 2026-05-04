@@ -1,21 +1,19 @@
 //! `ghc-zk` — zk-Halal SNARK circuits and verifier.
 //!
-//! This crate carries the production zk-Halal Groth16 circuits over
-//! BLS12-381 (arkworks). The circuit family proves, in zero
-//! knowledge, that a committed witness of per-step verdicts encodes a
-//! process whose Halal-Closure Functor verdict satisfies the
-//! requested upper bound on the compliance lattice — without
-//! revealing the verdicts themselves.
+//! Production zk-Halal Groth16 circuits over BLS12-381 (arkworks).
+//! The circuit family proves, in zero knowledge, that a committed
+//! witness of per-step verdicts encodes a process whose Halal-Closure
+//! Functor verdict satisfies the requested upper bound on the
+//! compliance lattice — without revealing the verdicts themselves.
 //!
-//! v0.0.x ships the [`HalalThresholdCircuit`] family with a linear
-//! field-element commitment. The commitment is **algebraically
-//! binding** (since each verdict is encoded in `{0, 1, 2}` and the
-//! commitment is a fixed-degree polynomial in the witness) but **not
-//! collision-resistant in the cryptographic sense**; v0.1 will swap
-//! the commitment for Poseidon over BLS12-381 (`Mathlib`-track:
-//! `ark-crypto-primitives::sponge::poseidon`).
+//! v0.0.x ships the [`HalalThresholdCircuit`] family with a
+//! **Poseidon-on-BLS12-381** binding commitment (width 3, rate 2,
+//! `alpha = 17`, 8 full rounds, 29 partial rounds). The native and
+//! in-circuit hashers are kept in lock-step via the shared
+//! [`poseidon_params::default_config`] so the off-circuit commitment
+//! always matches the constraint-system commitment.
 //!
-//! The R1CS constraints encoded here:
+//! The R1CS constraints encoded:
 //!
 //! 1. **Domain check.** Each witness slot `w_i` satisfies
 //!    `w_i (w_i − 1)(w_i − 2) = 0`, forcing
@@ -25,15 +23,19 @@
 //!    * `t = halal`: `w_i = 0`.
 //!    * `t = mashbuh`: `w_i (w_i − 1) = 0` (i.e. `w_i ∈ {0, 1}`).
 //! 3. **Commitment.** A public input `c` equals
-//!    `Σ_i (BASE^i · w_i + salt)`, with `BASE = 4` (so that
-//!    `0/1/2` digits do not carry into adjacent slots) and a private
-//!    `salt`. This makes the commitment binding for any
-//!    `n ≤ ⌊log_BASE Fr_modulus⌋`, comfortably above operational
-//!    needs.
+//!    `Poseidon(salt ‖ w_0 ‖ ... ‖ w_{n-1})`, where `salt` is a
+//!    private witness; the in-circuit Poseidon sponge is
+//!    `ark-crypto-primitives` `PoseidonSpongeVar`.
 
 #![forbid(unsafe_code)]
 
+mod poseidon_params;
+
 use ark_bls12_381::{Bls12_381, Fr};
+use ark_crypto_primitives::sponge::constraints::CryptographicSpongeVar;
+use ark_crypto_primitives::sponge::poseidon::constraints::PoseidonSpongeVar;
+use ark_crypto_primitives::sponge::poseidon::{PoseidonConfig, PoseidonSponge};
+use ark_crypto_primitives::sponge::{CryptographicSponge, FieldBasedCryptographicSponge};
 use ark_ff::Field;
 use ark_groth16::{Groth16, PreparedVerifyingKey, Proof, ProvingKey, VerifyingKey};
 use ark_r1cs_std::alloc::AllocVar;
@@ -44,7 +46,9 @@ use ark_snark::SNARK;
 use ghc_algebra::Verdict;
 use thiserror::Error;
 
-/// The zk-Halal commitment — a single field element.
+pub use poseidon_params::default_config as poseidon_config;
+
+/// The zk-Halal commitment — a single field element (Poseidon output).
 pub type Commitment = Fr;
 
 /// Allowed compliance threshold for the circuit. Any compliant
@@ -79,17 +83,27 @@ pub fn verdict_to_field(v: Verdict) -> Fr {
     }
 }
 
-/// Compute the linear commitment of a witness with a salt.
-/// `BASE = 4`, so `c = salt + Σ_i 4^i · v_i`.
+/// Compute the Poseidon commitment of a witness with a salt.
 pub fn commit(witness: &[Verdict], salt: Fr) -> Commitment {
-    let base = Fr::from(4u64);
-    let mut acc = salt;
-    let mut pow = Fr::ONE;
-    for &v in witness {
-        acc += pow * verdict_to_field(v);
-        pow *= base;
+    commit_field(
+        &witness
+            .iter()
+            .copied()
+            .map(verdict_to_field)
+            .collect::<Vec<_>>(),
+        salt,
+    )
+}
+
+/// Native Poseidon commit on field elements.
+fn commit_field(witness: &[Fr], salt: Fr) -> Fr {
+    let cfg: PoseidonConfig<Fr> = poseidon_config();
+    let mut sponge = PoseidonSponge::<Fr>::new(&cfg);
+    sponge.absorb(&salt);
+    for w in witness {
+        sponge.absorb(w);
     }
-    acc
+    sponge.squeeze_native_field_elements(1)[0]
 }
 
 /// The zk-Halal circuit.
@@ -105,7 +119,7 @@ pub struct HalalThresholdCircuit {
     /// Private salt: prevents brute-force enumeration of small
     /// witnesses.
     pub salt: Option<Fr>,
-    /// Public input: the binding commitment.
+    /// Public input: the binding Poseidon commitment.
     pub commitment: Fr,
 }
 
@@ -191,15 +205,15 @@ impl ConstraintSynthesizer<Fr> for HalalThresholdCircuit {
             }
         }
 
-        // Constraint set 3: commitment.
-        let base = FpVar::<Fr>::Constant(Fr::from(4u64));
-        let mut acc = salt_var;
-        let mut pow = FpVar::<Fr>::Constant(Fr::ONE);
+        // Constraint set 3: Poseidon commitment.
+        let cfg: PoseidonConfig<Fr> = poseidon_config();
+        let mut sponge = PoseidonSpongeVar::<Fr>::new(cs, &cfg);
+        sponge.absorb(&salt_var)?;
         for w in &w_vars {
-            acc += &pow * w;
-            pow = &pow * &base;
+            sponge.absorb(w)?;
         }
-        acc.enforce_equal(&c_var)?;
+        let squeezed = sponge.squeeze_field_elements(1)?;
+        squeezed[0].enforce_equal(&c_var)?;
 
         Ok(())
     }
@@ -324,12 +338,32 @@ mod tests {
     }
 
     #[test]
-    fn commit_is_collision_separating_for_distinct_witnesses() {
-        // The linear commitment with BASE = 4 separates any two
-        // witnesses with verdicts in {0,1,2} (no carry overflow).
+    fn commit_separates_distinct_witnesses() {
         let salt = Fr::from(0u64);
         let w1 = vec![Verdict::Halal, Verdict::Mashbuh, Verdict::Halal];
         let w2 = vec![Verdict::Mashbuh, Verdict::Halal, Verdict::Halal];
         assert_ne!(commit(&w1, salt), commit(&w2, salt));
+    }
+
+    #[test]
+    fn commit_separates_distinct_salts() {
+        let w = vec![Verdict::Halal; 3];
+        assert_ne!(commit(&w, Fr::from(1u64)), commit(&w, Fr::from(2u64)));
+    }
+
+    /// Native Poseidon and in-circuit Poseidon must agree:
+    /// any honest witness that the native commit() produces a value
+    /// for must be acceptable as the public input to a circuit
+    /// instance built from the same witness+salt.
+    #[test]
+    fn native_and_circuit_poseidon_agree() {
+        let n = 3;
+        let keys = setup(Threshold::Halal, n).expect("setup");
+        let witness = vec![Verdict::Halal; n];
+        let salt = Fr::from(0xc0ffee_u64);
+        let native = commit(&witness, salt);
+        let (c, proof) = prove(&keys, Threshold::Halal, witness, salt).expect("prove");
+        assert_eq!(native, c);
+        assert!(verify(&keys, c, &proof).expect("verify"));
     }
 }

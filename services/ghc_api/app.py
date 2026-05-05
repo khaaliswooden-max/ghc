@@ -9,6 +9,8 @@ Surfaces:
                                   search authority registry by query
   POST /v1/epcis/translate        EPCIS 2.0 → GHC document
   POST /v1/ghc/translate          GHC document → EPCIS 2.0 event
+  POST /v1/ml/ingredient          classify an ingredient string
+  POST /v1/ml/risk                score a provenance DAG
 """
 
 from __future__ import annotations
@@ -23,8 +25,15 @@ from pydantic import BaseModel, Field
 # Make `integrations.certifiers` importable from the services dir.
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
 
+from ghc_graph.types import ProvenanceDag  # noqa: E402
+from ghc_ml.ingredient import IngredientClassifier, trained_default_classifier  # noqa: E402
+from ghc_ml.risk import RiskScorer, trained_default_scorer  # noqa: E402
 from ghc_traceability.epcis import epcis_event_to_ghc, ghc_to_epcis_event  # noqa: E402
-from ghc_traceability.types import AuthorityDescriptor, CertificateRecord  # noqa: E402
+from ghc_traceability.types import (  # noqa: E402
+    AuthorityDescriptor,
+    CertificateRecord,
+    Verdict,
+)
 from integrations.certifiers import get_adapter, list_authorities  # noqa: E402
 
 app = FastAPI(
@@ -32,6 +41,30 @@ app = FastAPI(
     version="0.0.1",
     description="Global Halal Compliance reference gateway.",
 )
+
+
+# --- Lazy ML model loaders --------------------------------------------------
+
+
+_INGREDIENT_CLASSIFIER: IngredientClassifier | None = None
+_RISK_SCORER: RiskScorer | None = None
+
+
+def _ingredient_clf() -> IngredientClassifier:
+    global _INGREDIENT_CLASSIFIER
+    if _INGREDIENT_CLASSIFIER is None:
+        _INGREDIENT_CLASSIFIER = trained_default_classifier(seed=0, n=256)
+    return _INGREDIENT_CLASSIFIER
+
+
+def _risk_scorer() -> RiskScorer:
+    global _RISK_SCORER
+    if _RISK_SCORER is None:
+        _RISK_SCORER = trained_default_scorer(seed=0, n=96)
+    return _RISK_SCORER
+
+
+# --- Schemas ----------------------------------------------------------------
 
 
 class HealthResponse(BaseModel):
@@ -50,6 +83,26 @@ class TranslateRequest(BaseModel):
 
 class TranslateResponse(BaseModel):
     document: dict[str, Any]
+
+
+class IngredientRequest(BaseModel):
+    text: str = Field(..., min_length=1)
+
+
+class IngredientResponse(BaseModel):
+    verdict: Verdict
+    reason: str
+
+
+class RiskRequest(BaseModel):
+    dag: ProvenanceDag
+
+
+class RiskResponse(BaseModel):
+    risk: float = Field(..., ge=0.0, le=1.0)
+
+
+# --- Endpoints --------------------------------------------------------------
 
 
 @app.get("/v1/healthz", response_model=HealthResponse, tags=["meta"])
@@ -121,3 +174,22 @@ async def translate_ghc_to_epcis(req: TranslateRequest) -> TranslateResponse:
         return TranslateResponse(document=ghc_to_epcis_event(req.document))
     except ValueError as e:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, str(e))
+
+
+@app.post(
+    "/v1/ml/ingredient",
+    response_model=IngredientResponse,
+    tags=["ml"],
+)
+async def classify_ingredient(req: IngredientRequest) -> IngredientResponse:
+    verdict, reason = _ingredient_clf().classify(req.text)
+    return IngredientResponse(verdict=verdict, reason=reason)
+
+
+@app.post(
+    "/v1/ml/risk",
+    response_model=RiskResponse,
+    tags=["ml"],
+)
+async def score_risk(req: RiskRequest) -> RiskResponse:
+    return RiskResponse(risk=_risk_scorer().score(req.dag))

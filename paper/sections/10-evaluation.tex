@@ -17,9 +17,30 @@ count, parameterized by provenance-DAG size $|V| \in \{10^2, 10^3,
 10^4\}$.
 
 \subsection{ML accuracy}
-Ingredient-OCR F1 on a held-out test set of multilingual product labels
-(Arabic, Malay, Urdu, Indonesian, English); GNN supply-chain risk
-PR-AUC on a synthetic-plus-GDST evaluation set.
+
+The v0.0.x ML pipelines (\path{services/ghc_ml}) are evaluated on
+deterministic synthetic data so the numbers reported here are
+reproducible from a clean checkout via \texttt{pytest}.
+
+\paragraph{Ingredient classifier.}
+\texttt{IngredientClassifier} combines a corpus arm (curated
+haram-keyword + E-number lattice) with a character n-gram MLP
+fallback. On the synthetic dataset
+\path{ghc_ml.data.synthetic.synthetic_ingredients} (seed=0,
+$N{=}400$, 80/20 split), the neural arm converges to validation
+accuracy $\geq 0.90$ in 30 epochs of CPU training. The corpus arm
+guarantees correctness on known tokens (pork, lard, alcohol,
+E120, E322, ...) by construction. Real labeled-image evaluation
+on multilingual labels (Arabic, Malay, Urdu, Indonesian, English)
+is Phase E+ work that will plug a LayoutLMv3 image encoder ahead
+of the n-gram MLP.
+
+\paragraph{Risk GNN.}
+\texttt{SupplyChainRiskGNN} achieves validation MAE $< 0.20$ and
+PR-AUC $> 0.30$ on \path{ghc_ml.data.synthetic.synthetic_dags}
+(seed=0, $N{=}80$, 80/20 split, 80 epochs). Real-data GDST
+evaluation is queued for Phase E+ once a redistribution-friendly
+trace corpus is licensed.
 
 \subsection{End-to-end demos}
 Three cross-domain demos exercise the full pipeline:

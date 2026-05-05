@@ -74,15 +74,40 @@ reproducibility certificate.
 
 \paragraph{Services (Python).}
 \path{services/ghc_api} is a FastAPI gateway exposing the
-authority registry, certificate lookup/search, and bidirectional
-EPCIS translation. \path{services/ghc_traceability} ships the
-real EPCIS 2.0 $\leftrightarrow$ GHC mapping, covering
-\texttt{ObjectEvent}, \texttt{TransformationEvent}, and
-\texttt{AggregationEvent}, with roundtrip pytests under
-\path{services/tests/}. \path{services/ghc_ml} hosts the ML
-pipelines: LayoutLMv3 \cite{layoutlm} for ingredient OCR,
-multilingual BERT/XLM-R for label NLP, and PyTorch-Geometric GNNs
-for supply-chain risk. The ML pipelines remain a Phase E target.
+authority registry, certificate lookup/search, bidirectional
+EPCIS translation, and the ML inference endpoints below.
+\path{services/ghc_traceability} ships the real EPCIS 2.0
+$\leftrightarrow$ GHC mapping, covering \texttt{ObjectEvent},
+\texttt{TransformationEvent}, and \texttt{AggregationEvent}, with
+roundtrip pytests under \path{services/tests/}.
+\path{services/ghc_ml} hosts two trainable models, both
+implemented in PyTorch and trainable on CPU in seconds on
+synthetic data so CI keeps full coverage:
+\begin{itemize}
+\item \texttt{IngredientClassifier} — corpus arm
+  (haram-keywords + curated E-number lattice) plus a small
+  character n-gram MLP fallback for novel strings. The neural
+  arm converges to $>$~0.9 validation accuracy on
+  \path{ghc_ml.data.synthetic.synthetic_ingredients}; the
+  corpus arm guarantees correct classification for known
+  E-numbers (e.g.\ E120 $\to$ ḥarām, E322 $\to$ mashbūh) and
+  known haram tokens (pork, lard, alcohol). Phase E+ swaps the
+  fallback for LayoutLMv3 \cite{layoutlm} + multilingual XLM-R
+  for image-based label OCR.
+\item \texttt{SupplyChainRiskGNN} — two-layer message-passing GNN
+  (custom implementation, no
+  \texttt{torch\_geometric} dependency) over per-node
+  $(d_{\rm in}, d_{\rm out}, \log(1 + w_{\rm in}),
+  \log(1 + w_{\rm out}))$ features and edge-weight-modulated
+  messages, with a mean-pool readout and a sigmoid head emitting
+  a scalar risk in $[0, 1]$. Trains to validation MAE $<$ 0.20
+  and PR-AUC $>$ 0.3 on synthetic provenance DAGs whose
+  ground-truth risk is computed deterministically from edge
+  count and weight statistics.
+\end{itemize}
+Both models surface as \texttt{POST /v1/ml/ingredient} and
+\texttt{POST /v1/ml/risk}; their lazy-load fixtures train the
+default models with seeded determinism on first request.
 
 \paragraph{Spec.}
 \path{spec/} publishes the GHC Protocol as Markdown plus JSON Schema +

@@ -79,7 +79,8 @@ code and a Lean proof obligation.
 | C+2. EVM verifier | parallel | Circom port of the HalalThresholdCircuit (BN254 + Poseidon-on-BN254), snarkjs Groth16 setup + Solidity verifier, end-to-end assertion suite under `integrations/dlt/evm`; CI builds + tests. | **done (v0.0.x)** |
 | C+3. PLONK / STARK | parallel | PLONK universal-setup variant; transparent STARK port. | open |
 | D. Integrations | 19–22 | Certifier adapters (six fixture-backed, HTTP scaffold), real EPCIS 2.0 ↔ GHC mapping with roundtrip tests, FastAPI gateway, Hyperledger Fabric chaincode (Go) with 9 unit tests. EVM verifier already shipped under C+2. | **done (v0.0.x)** |
-| E. ML & datasets | 23–26 | LayoutLMv3 fine-tune; GNN risk model. | open |
+| E. ML & datasets | 23–26 | Trainable PyTorch ingredient classifier (corpus + n-gram MLP) and supply-chain risk GNN with deterministic synthetic datasets, FastAPI integration, 11 ML tests passing. | **done (v0.0.x)** |
+| E+. Heavy ML | parallel | LayoutLMv3 image-based label OCR, multilingual XLM-R for non-Latin labels, PyTorch-Geometric GNN trained on real GDST traces. | open |
 | F. Whitepaper + spec | 27–32 | Full draft; GHC Protocol v0.1 spec frozen. | open |
 | G. External review | 33–36 | Shariah-board review; arXiv preprint. | open |
 

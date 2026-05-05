@@ -71,8 +71,24 @@ An `Authority` is a Shariah-recognized certifier:
 GHC defines an EPCIS 2.0 `bizStep` extension namespace
 `https://ghc.example/bizstep/` covering halal-specific operations
 (slaughter, blessing recitation, washing-cycle, separation-line) and a
-`disposition` extension for compliance-lattice membership. Profile
-schemas are in `schemas/epcis-extension.json`.
+`disposition` extension namespace `https://ghc.example/disposition/`
+for compliance-lattice membership.
+
+**Bidirectional translation is implemented as of v0.0.x** in
+`services/ghc_traceability/epcis.py`. The mapping handles three
+EPCIS 2.0 event types:
+
+| EPCIS 2.0 event       | GHC document       |
+|-----------------------|--------------------|
+| `ObjectEvent`         | `ghc:Batch`        |
+| `TransformationEvent` | `ghc:Process`      |
+| `AggregationEvent`    | `ghc:Process` (operation `ghc:op/mixing/aggregation`) |
+
+Roundtrip translation `EPCIS → GHC → EPCIS` produces a
+semantically-equivalent (though not byte-identical) event;
+verifiers MUST treat the two forms as equivalent for the purposes
+of provenance reasoning. Pytest assertions covering both directions
+ship in `services/tests/test_smoke.py`.
 
 ## 1.4 PROV-O alignment
 

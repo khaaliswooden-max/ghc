@@ -1,0 +1,12 @@
+[
+  {
+    "certificate_id": "MUI-LPPOM-2026-00007",
+    "authority_id": "urn:ghc:authority:mui",
+    "subject_id": "urn:ghc:product:gelatin-bovine-batch-3f9c",
+    "subject_name": "Bovine Gelatin, Batch 3f9c",
+    "verdict": "halal",
+    "valid_from": "2026-02-01T00:00:00Z",
+    "valid_to": "2028-02-01T00:00:00Z",
+    "raw": {"lppom_no": "00210104020526", "category": "ingredient"}
+  }
+]

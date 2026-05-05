@@ -1,0 +1,26 @@
+[
+  {
+    "certificate_id": "JAKIM-MS1500-2026-00042",
+    "authority_id": "urn:ghc:authority:jakim",
+    "subject_id": "urn:ghc:product:beef-shoulder-batch-7c1a",
+    "subject_name": "Beef Shoulder, Batch 7c1a",
+    "verdict": "halal",
+    "valid_from": "2026-01-15T00:00:00Z",
+    "valid_to": "2027-01-15T00:00:00Z",
+    "raw": {
+      "ms1500_class": "MS 1500:2019",
+      "establishment": "Pelangi Halal Abattoir Sdn Bhd",
+      "searchable_text": "beef shoulder pelangi abattoir"
+    }
+  },
+  {
+    "certificate_id": "JAKIM-MS1500-2026-00111",
+    "authority_id": "urn:ghc:authority:jakim",
+    "subject_id": "urn:ghc:establishment:pelangi-halal-abattoir",
+    "subject_name": "Pelangi Halal Abattoir Sdn Bhd",
+    "verdict": "halal",
+    "valid_from": "2025-09-01T00:00:00Z",
+    "valid_to": "2026-09-01T00:00:00Z",
+    "raw": {"ms1500_class": "MS 1500:2019", "scope": "abattoir"}
+  }
+]

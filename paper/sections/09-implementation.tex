@@ -73,11 +73,16 @@ every push; a green build is the canonical operational
 reproducibility certificate.
 
 \paragraph{Services (Python).}
-\path{services/ghc_api} is a FastAPI gateway. \path{services/ghc_ml}
-hosts the ML pipelines: LayoutLMv3 \cite{layoutlm} for ingredient OCR,
-multilingual BERT/XLM-R for label NLP, and PyTorch-Geometric GNNs for
-supply-chain risk. \path{services/ghc_traceability} adapts OpenEPCIS.
-These remain Phase D/E targets.
+\path{services/ghc_api} is a FastAPI gateway exposing the
+authority registry, certificate lookup/search, and bidirectional
+EPCIS translation. \path{services/ghc_traceability} ships the
+real EPCIS 2.0 $\leftrightarrow$ GHC mapping, covering
+\texttt{ObjectEvent}, \texttt{TransformationEvent}, and
+\texttt{AggregationEvent}, with roundtrip pytests under
+\path{services/tests/}. \path{services/ghc_ml} hosts the ML
+pipelines: LayoutLMv3 \cite{layoutlm} for ingredient OCR,
+multilingual BERT/XLM-R for label NLP, and PyTorch-Geometric GNNs
+for supply-chain risk. The ML pipelines remain a Phase E target.
 
 \paragraph{Spec.}
 \path{spec/} publishes the GHC Protocol as Markdown plus JSON Schema +
@@ -88,17 +93,28 @@ subcommands produce/consume the binary serialization that the v0.1
 spec will wrap in a VC envelope.
 
 \paragraph{Integrations.}
-\path{integrations/certifiers/} ships query-on-demand adapters for
-JAKIM, MUI/BPJPH, HFA, ESMA, SFDA, and SMIIC registries (subject to
-each registry's terms of service; Phase D).
-\path{integrations/dlt/evm/} ships the EVM-side ZK pipeline as of
-v0.0.x: a Circom \cite{circom} port of the
-\texttt{HalalThresholdCircuit} compiling to BN254 (alt\_bn128), a
-\texttt{snarkjs}-generated Solidity Groth16 verifier deployable to
-any EVM L2, and an end-to-end assertion suite
-(\texttt{scripts/test.sh}) that builds the circuit, runs a
-local powers-of-tau ceremony, generates the proving and verifying
-keys, proves a halal-only witness, verifies it, exports Solidity
-calldata, and confirms haram verdicts are rejected at witness
-generation. The Hyperledger Fabric chaincode \cite{fabric} for
-consortium deployments remains a Phase D target.
+\path{integrations/certifiers/} ships a \texttt{CertifierAdapter}
+abstraction with two concrete realizations: \texttt{FixtureCertifier-
+Adapter} (JSON-fixture-backed; used in CI and offline development)
+and \texttt{HttpCertifierAdapter} (reusable scaffold for
+documented REST APIs). The default registry (\texttt{REGISTRY})
+binds JAKIM, MUI/BPJPH, HFA, ESMA, SFDA, and SMIIC each to a
+fixture-backed adapter; production deployments override
+\texttt{REGISTRY} at startup with HTTP-backed adapters subject to
+each registry's terms of service.
+
+\path{integrations/dlt/evm/} ships the EVM-side ZK pipeline: a
+Circom \cite{circom} port of the \texttt{HalalThresholdCircuit}
+compiling to BN254 (alt\_bn128), a \texttt{snarkjs}-generated
+Solidity Groth16 verifier deployable to any EVM L2, and an
+end-to-end assertion suite (\texttt{scripts/test.sh}).
+
+\path{integrations/dlt/fabric/chaincode/} ships the Hyperledger
+Fabric \cite{fabric} chaincode in Go: an \texttt{Attestation}
+record keyed by Poseidon commitment, with operations \texttt{Attest},
+\texttt{Get}, \texttt{Exists}, and \texttt{ListByIssuer}, and
+field-level validation that gates on the closed set of
+\texttt{ghc:scheme} tags from \Cref{sec:zkhalal} and on the
+verdict alphabet from \Cref{sec:hcf}. Nine \texttt{go test} unit
+tests cover the success path, duplicate rejection, and every
+validation failure mode.

@@ -1,0 +1,12 @@
+[
+  {
+    "certificate_id": "HFA-2026-UK-00318",
+    "authority_id": "urn:ghc:authority:hfa",
+    "subject_id": "urn:ghc:establishment:atlas-foods-uk",
+    "subject_name": "Atlas Foods UK Ltd",
+    "verdict": "halal",
+    "valid_from": "2026-03-01T00:00:00Z",
+    "valid_to": "2027-03-01T00:00:00Z",
+    "raw": {"category": "manufacturer", "country": "GB"}
+  }
+]

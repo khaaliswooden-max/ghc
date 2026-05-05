@@ -9,5 +9,8 @@ Two reference deployments are tracked:
    assertion suite. See `evm/README.md`.
 
 2. **Hyperledger Fabric chaincode** (`fabric/`) — consortium
-   deployments where authorities run validating peers. Phase D
-   target.
+   deployments where authorities run validating peers.
+   **Implemented as of v0.0.x:** Go chaincode with `Attest`,
+   `Get`, `Exists`, `ListByIssuer`, plus 9 `go test` unit tests
+   covering success, duplicate rejection, and every validation
+   failure mode. See `fabric/chaincode/`.

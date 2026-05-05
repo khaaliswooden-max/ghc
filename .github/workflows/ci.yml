@@ -33,6 +33,17 @@ jobs:
       - run: ruff check .
       - run: pytest
 
+  fabric:
+    name: fabric (go test)
+    runs-on: ubuntu-latest
+    defaults: { run: { working-directory: integrations/dlt/fabric/chaincode } }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with: { go-version: "1.24" }
+      - run: go build ./...
+      - run: go test -v ./...
+
   spec:
     name: spec (jsonschema)
     runs-on: ubuntu-latest

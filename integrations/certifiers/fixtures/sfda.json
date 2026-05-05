@@ -1,0 +1,12 @@
+[
+  {
+    "certificate_id": "SFDA-KSA-2026-00204",
+    "authority_id": "urn:ghc:authority:sfda",
+    "subject_id": "urn:ghc:product:dates-medjool-batch-1a4d",
+    "subject_name": "Medjool Dates, Batch 1a4d",
+    "verdict": "halal",
+    "valid_from": "2026-01-20T00:00:00Z",
+    "valid_to": "2028-01-20T00:00:00Z",
+    "raw": {"category": "fresh produce", "country": "SA"}
+  }
+]

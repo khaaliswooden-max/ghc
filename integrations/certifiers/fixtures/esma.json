@@ -1,0 +1,12 @@
+[
+  {
+    "certificate_id": "ESMA-UAE-S-2026-00091",
+    "authority_id": "urn:ghc:authority:esma",
+    "subject_id": "urn:ghc:product:lamb-leg-batch-8e22",
+    "subject_name": "Lamb Leg, Batch 8e22",
+    "verdict": "halal",
+    "valid_from": "2026-04-10T00:00:00Z",
+    "valid_to": "2027-04-10T00:00:00Z",
+    "raw": {"scheme": "UAE.S 2055-1:2015", "country": "AE"}
+  }
+]

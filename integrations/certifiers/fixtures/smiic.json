@@ -1,0 +1,11 @@
+[
+  {
+    "certificate_id": "SMIIC-OIC-2026-00012",
+    "authority_id": "urn:ghc:authority:smiic",
+    "subject_id": "urn:ghc:scheme:oic-smiic-1-2019",
+    "subject_name": "OIC/SMIIC 1:2019 — General Requirements for Halal Food",
+    "verdict": "halal",
+    "valid_from": "2019-09-01T00:00:00Z",
+    "raw": {"document": "OIC/SMIIC 1:2019"}
+  }
+]

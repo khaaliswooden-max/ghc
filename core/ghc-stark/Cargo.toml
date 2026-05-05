@@ -1,0 +1,15 @@
+[package]
+name        = "ghc-stark"
+description = "Transparent (post-quantum) zk-Halal STARK via winterfell."
+version.workspace      = true
+edition.workspace      = true
+rust-version.workspace = true
+license.workspace      = true
+repository.workspace   = true
+authors.workspace      = true
+
+[dependencies]
+ghc-algebra = { path = "../ghc-algebra" }
+winterfell  = { workspace = true }
+serde       = { workspace = true }
+thiserror   = { workspace = true }

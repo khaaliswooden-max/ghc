@@ -12,8 +12,10 @@
 *.toc
 *.bbl
 *.blg
+*.bcf
 *.fls
 *.fdb_latexmk
+*.run.xml
 *.synctex.gz
 paper/main.pdf
 

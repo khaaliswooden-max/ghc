@@ -81,7 +81,7 @@ code and a Lean proof obligation.
 | D. Integrations | 19–22 | Certifier adapters (six fixture-backed, HTTP scaffold), real EPCIS 2.0 ↔ GHC mapping with roundtrip tests, FastAPI gateway, Hyperledger Fabric chaincode (Go) with 9 unit tests. EVM verifier already shipped under C+2. | **done (v0.0.x)** |
 | E. ML & datasets | 23–26 | Trainable PyTorch ingredient classifier (corpus + n-gram MLP) and supply-chain risk GNN with deterministic synthetic datasets, FastAPI integration, 11 ML tests passing. | **done (v0.0.x)** |
 | E+. Heavy ML | parallel | LayoutLMv3 image-based label OCR, multilingual XLM-R for non-Latin labels, PyTorch-Geometric GNN trained on real GDST traces. | open |
-| F. Whitepaper + spec | 27–32 | Full draft; GHC Protocol v0.1 spec frozen. | open |
+| F. Whitepaper + spec | 27–32 | Paper compiles cleanly to a 15-page PDF under `latexmk` (no `sorry`s, no unresolved citations); GHC Protocol v0.1.0 spec frozen with §0.7 changelog; release packaged with `CHANGELOG.md`, version bumps across Cargo / pyproject / CITATION, and tightened CI (paper build now mandatory). | **done (v0.1.0)** |
 | G. External review | 33–36 | Shariah-board review; arXiv preprint. | open |
 
 ## Open Questions

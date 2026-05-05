@@ -38,7 +38,7 @@ from integrations.certifiers import get_adapter, list_authorities  # noqa: E402
 
 app = FastAPI(
     title="GHC API",
-    version="0.0.1",
+    version="0.1.0",
     description="Global Halal Compliance reference gateway.",
 )
 
@@ -69,7 +69,7 @@ def _risk_scorer() -> RiskScorer:
 
 class HealthResponse(BaseModel):
     status: str = "ok"
-    version: str = "0.0.1"
+    version: str = "0.1.0"
 
 
 class SearchRequest(BaseModel):

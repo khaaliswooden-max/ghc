@@ -5,8 +5,12 @@
 > proofs, information-theoretic contamination bounds, quantum-statistical
 > provenance modeling, and zero-knowledge attestation.
 
-**Status:** Phase A bootstrap. Empty‑repo seed.
-The full plan lives in [`docs/PLAN.md`](docs/PLAN.md).
+**Status:** **v0.1.0** — first frozen release. Phases A through F
+done; G (external Shariah-board review + arXiv preprint) and the
+parallel **C+3** (PLONK / STARK) and **E+** (LayoutLMv3 / GDST)
+tracks are open.  The full phase ledger lives in
+[`docs/PLAN.md`](docs/PLAN.md); the release notes are in
+[`CHANGELOG.md`](CHANGELOG.md).
 
 GHC is being developed as three coupled artifacts:
 
@@ -50,15 +54,44 @@ docs/          Project plan and design notes
 vendor/        Vendored upstream references (git submodules)
 ```
 
-## Getting started (when stubs are filled in)
+## Getting started
 
 ```bash
-make proofs    # lake build for Lean 4 theorems
+make proofs    # lake build (pure Lean 4 kernel; ~20s)
 make core      # cargo test --workspace
 make services  # pytest in services/
 make paper     # latexmk -pdf paper/main.tex
 make spec      # validate JSON Schemas
-make demo      # end-to-end traceability demo
+make demo      # end-to-end zk-Halal demo (cargo run -p ghc-cli -- demo)
+```
+
+Phase-specific tests:
+
+```bash
+cd proofs-mathlib && lake exe cache get && lake build      # Phase B+
+cd integrations/dlt/evm && bash scripts/build.sh halal_n3  # Phase C+2
+cd integrations/dlt/evm && bash scripts/test.sh
+cd integrations/dlt/fabric/chaincode && go test ./...      # Phase D
+```
+
+End-to-end zk-Halal demo (release build):
+
+```
+== GHC reference demo: farm → abattoir → processor → retailer ==
+
+  provenance: 4 nodes, 3 edges, total_weight = 285
+  fingerprint top-3: [2.0000, 1.4995, 0.5005]
+  HCF verdict: halal
+  audits: [Halal, Halal, Halal, Mashbuh]  → plurality: halal
+
+  generating zk-Halal Groth16 setup (BLS12-381)...
+    setup:     57 ms
+    proving:   54 ms
+    verifying: 2.3 ms
+    proof: 192 bytes
+
+  zk-Halal attestation: commitment = 0x0db7…a854  →  VALID
+  hostile-witness rejection: REJECTED
 ```
 
 ## License
@@ -72,15 +105,16 @@ See [`LICENSE`](LICENSE), [`LICENSE-MIT`](LICENSE-MIT),
 
 ## Citation
 
-See [`CITATION.cff`](CITATION.cff). When the v0.1 preprint lands, this
-section will be updated with arXiv / DOI metadata.
+See [`CITATION.cff`](CITATION.cff). The v0.1.0 release tag pins the
+release; once an arXiv preprint is posted (Phase G), this section
+will gain the arXiv / DOI metadata.
 
 ## Contributing
 
-GHC is research‑grade and pre‑v0.1. Issues and discussions are welcome;
-substantive PRs should reference the relevant theorem / spec section. All
-contributions are accepted under the dual MIT/Apache‑2.0 (code) or CC‑BY‑4.0
-(prose) license.
+GHC is now at v0.1.0. Issues and discussions are welcome;
+substantive PRs should reference the relevant theorem / spec section
+and update `CHANGELOG.md`. All contributions are accepted under the
+dual MIT/Apache‑2.0 (code) or CC‑BY‑4.0 (prose) license.
 
 ## Vendored references
 

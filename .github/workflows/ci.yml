@@ -92,8 +92,6 @@ jobs:
           working_directory: paper
           root_file: main.tex
           latexmk_use_xelatex: false
-          extra_system_packages: "py-pygments"
-          continue_on_error: true   # Phase A: paper compiles to skeleton.
 
   evm:
     name: evm (Circom + snarkjs)

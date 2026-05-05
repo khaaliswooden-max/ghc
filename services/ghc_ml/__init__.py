@@ -18,4 +18,4 @@ keeps full coverage. Phase E+ swaps the n-gram MLP for LayoutLMv3 +
 multilingual XLM-R for image-based label OCR.
 """
 
-__version__ = "0.0.1"
+__version__ = "0.1.0"

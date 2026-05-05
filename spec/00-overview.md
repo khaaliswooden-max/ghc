@@ -1,4 +1,4 @@
-# GHC Protocol — v0.1 (Draft)
+# GHC Protocol — v0.1.0
 
 ## 0. Overview
 
@@ -6,9 +6,11 @@ The **GHC Protocol** is an open, authority-parametric specification for
 expressing, transmitting, and verifying halal compliance claims across
 food, pharmaceutical, cosmetic, financial, and logistics domains.
 
-This document is **non-normative** until tagged `v0.1.0`. It tracks the
-six contributions defined in the GHC whitepaper and binds them to
-on-the-wire data formats, schemas, and verification procedures.
+This document tracks the six contributions defined in the GHC
+whitepaper and binds them to on-the-wire data formats, schemas, and
+verification procedures. It is **frozen** at v0.1.0; subsequent
+changes follow [SemVer](https://semver.org/) and are recorded in the
+spec changelog (§0.7) and the top-level [`CHANGELOG.md`](../CHANGELOG.md).
 
 ## 0.1 Document set
 
@@ -65,5 +67,26 @@ the major version. JSON-LD `@context` URLs are versioned, e.g.
 
 ## 0.6 Status of this document
 
-Phase A bootstrap. **Do not implement against this draft.** The first
-implementable release will be tagged `v0.1.0` after Phase F.
+**Tagged v0.1.0.** This is the first implementable release. The
+reference implementations under `core/`, `services/`, and
+`integrations/` conform to this document.
+
+## 0.7 Spec changelog
+
+### v0.1.0 — 2026-05-05
+
+Initial frozen release.
+
+* `ghc:scheme` enum normalized to:
+  * `groth16-bls12-381-poseidon` — off-chain default (`core/ghc-zk`).
+  * `groth16-bn254-poseidon` — EVM default (`integrations/dlt/evm`).
+  * `plonk-bn254-poseidon` — universal-setup variant; reserved.
+  * `stark-poseidon` — transparent / post-quantum; reserved.
+* §1.3 EPCIS extension: bidirectional mapping for `ObjectEvent`,
+  `TransformationEvent`, `AggregationEvent` is implemented in
+  `services/ghc_traceability/epcis.py`.
+* §2.4 Curve binding: verifiers MUST refuse a proof artifact whose
+  `ghc:scheme` tag does not match what their verifier expects.
+* §3.3 Dissent encoding: federated verdicts MUST surface
+  authority-level disagreement; verifiers MUST NOT silently reduce
+  to a single value.

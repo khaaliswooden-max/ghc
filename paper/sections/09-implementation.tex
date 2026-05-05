@@ -90,6 +90,15 @@ spec will wrap in a VC envelope.
 \paragraph{Integrations.}
 \path{integrations/certifiers/} ships query-on-demand adapters for
 JAKIM, MUI/BPJPH, HFA, ESMA, SFDA, and SMIIC registries (subject to
-each registry's terms of service). \path{integrations/dlt/} provides a
-Hyperledger Fabric chaincode \cite{fabric} and a Solidity verifier for
-EVM L2 anchoring (Phase D).
+each registry's terms of service; Phase D).
+\path{integrations/dlt/evm/} ships the EVM-side ZK pipeline as of
+v0.0.x: a Circom \cite{circom} port of the
+\texttt{HalalThresholdCircuit} compiling to BN254 (alt\_bn128), a
+\texttt{snarkjs}-generated Solidity Groth16 verifier deployable to
+any EVM L2, and an end-to-end assertion suite
+(\texttt{scripts/test.sh}) that builds the circuit, runs a
+local powers-of-tau ceremony, generates the proving and verifying
+keys, proves a halal-only witness, verifies it, exports Solidity
+calldata, and confirms haram verdicts are rejected at witness
+generation. The Hyperledger Fabric chaincode \cite{fabric} for
+consortium deployments remains a Phase D target.

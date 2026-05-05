@@ -83,3 +83,23 @@ jobs:
           latexmk_use_xelatex: false
           extra_system_packages: "py-pygments"
           continue_on_error: true   # Phase A: paper compiles to skeleton.
+
+  evm:
+    name: evm (Circom + snarkjs)
+    runs-on: ubuntu-latest
+    defaults: { run: { working-directory: integrations/dlt/evm } }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: "22" }
+      - name: install circom
+        run: |
+          set -e
+          git clone --depth 1 -b v2.1.9 https://github.com/iden3/circom.git /tmp/circom
+          cd /tmp/circom
+          cargo build --release --bin circom
+          sudo install -m 0755 /tmp/circom/target/release/circom /usr/local/bin/circom
+          circom --version
+      - run: npm install
+      - run: bash scripts/build.sh halal_n3
+      - run: bash scripts/test.sh

@@ -76,7 +76,7 @@ code and a Lean proof obligation.
 | C+. Heavy mathlib | parallel | Mutual-information `C_h`, Hoeffding's lemma, Azuma–Hoeffding, spectral-theorem reduction to abstract Hermitian densities. | open |
 | C. Rust core + ZK | 11–18 | `ghc-algebra` + `ghc-graph` + `ghc-zk` + `ghc-cli`; runtime mirror of every Lean kernel theorem; Groth16 over BLS12-381; end-to-end CLI demo. | **done (v0.0.x)** |
 | C+1. Poseidon commitment | parallel | Swap base-4 commitment for Poseidon-on-BLS12-381 in `ghc-zk`; native + in-circuit hashers byte-identical. | **done (v0.0.x)** |
-| C+2. EVM verifier | parallel | Circom port of the HalalThresholdCircuit + Solidity verifier under `integrations/dlt/evm`. | open |
+| C+2. EVM verifier | parallel | Circom port of the HalalThresholdCircuit (BN254 + Poseidon-on-BN254), snarkjs Groth16 setup + Solidity verifier, end-to-end assertion suite under `integrations/dlt/evm`; CI builds + tests. | **done (v0.0.x)** |
 | C+3. PLONK / STARK | parallel | PLONK universal-setup variant; transparent STARK port. | open |
 | D. Integrations | 19–22 | Certifier APIs, OpenEPCIS, Fabric chaincode, Solidity verifier. | open |
 | E. ML & datasets | 23–26 | LayoutLMv3 fine-tune; GNN risk model. | open |

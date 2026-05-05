@@ -27,6 +27,7 @@
         "ghc:lattice":     { "enum": ["halal", "mashbuh", "haram"] },
         "ghc:scheme":      { "enum": [
           "groth16-bls12-381-poseidon",
+          "groth16-bn254-poseidon",
           "plonk-bn254-poseidon",
           "stark-poseidon"
         ] },

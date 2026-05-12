@@ -1,0 +1,12 @@
+# GHC funding sources.
+#
+# v0.1.0 is maintainer-led-pending; no funding channel is open yet.
+# When a steward organization is named (see GOVERNANCE.md §v0.2
+# roadmap), real handles replace the commented placeholders below.
+
+# github: [ghc-foundation]
+# patreon: ghc
+# open_collective: ghc
+# ko_fi: ghc
+# tidelift: maven/ghc
+# custom: ["https://example.com/sponsor-ghc"]

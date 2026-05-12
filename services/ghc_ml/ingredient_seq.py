@@ -29,7 +29,6 @@ from typing import List, Tuple
 import numpy as np
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 
 from ghc_ml.data.corpus import keyword_verdict, lookup_e_number
 from ghc_ml.ingredient import INDEX_VERDICT, VERDICT_INDEX

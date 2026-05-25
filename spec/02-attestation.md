@@ -68,9 +68,12 @@ commitment from any disclosed witness.
   and a verdict column; each row applies a degree-7 round function
   `(h0', h1') = (h0^7 + 2·h1^7 + v + RC0, h0^7 + h1^7 + v + RC1)`
   with 8-periodic public round constants. The initial state is seeded
-  by the public salt; the final `h0` is the public commitment. A
-  quadratic extension lifts the effective security to 95 bits. Full
-  prove/verify round-trip tests pass.
+  by the public salt; the final `h0` is the public commitment.
+  Halal-ness is enforced at the AIR level: periodic boundary
+  assertions pin the verdict column to `0` at every row, so a trace
+  with any non-halal verdict fails to prove. A quadratic extension
+  lifts the effective security to 95 bits. Full prove/verify
+  round-trip and non-halal-rejection tests pass.
 
 ## 2.4 Curve binding
 

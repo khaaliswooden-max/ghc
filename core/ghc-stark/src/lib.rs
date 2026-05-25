@@ -19,10 +19,12 @@
 //!
 //! ## What this proves
 //!
-//! Given a public `(salt, commitment)` pair, knowledge of a verdict
-//! sequence whose running hash starting from `salt` yields `commitment`.
-//! A prover whose verdicts differ from the committed values cannot
-//! produce a matching commitment without breaking the hash.
+//! Given a public `(salt, commitment)` pair, knowledge of an **all-halal**
+//! verdict sequence whose running hash starting from `salt` yields
+//! `commitment`. Halal-ness is enforced at the AIR level: periodic
+//! boundary assertions pin the verdict column to `0` at every row, so a
+//! trace carrying any non-halal verdict fails to prove. The commitment
+//! additionally binds the verdicts to the public salt.
 
 #![forbid(unsafe_code)]
 
@@ -78,9 +80,13 @@ impl Air for HalalAir {
             TransitionConstraintDegree::new(7),
             TransitionConstraintDegree::new(7),
         ];
-        // Three boundary assertions: h0[0]=salt, h1[0]=0, h0[last]=commitment.
+        // Three boundary assertions on the hash state plus two on the
+        // verdict column. The verdict assertions (v = 0 at every row,
+        // split across even/odd strides since periodic stride must be
+        // ≥ 2) are what make this a *halal* proof: a trace with any
+        // non-zero verdict fails trace validation.
         HalalAir {
-            context: AirContext::new(trace_info, degrees, 3, options),
+            context: AirContext::new(trace_info, degrees, 5, options),
             salt: BaseElement::new(pub_inputs.salt),
             commitment: BaseElement::new(pub_inputs.commitment),
         }
@@ -109,6 +115,10 @@ impl Air for HalalAir {
             Assertion::single(0, 0, self.salt),
             Assertion::single(1, 0, BaseElement::ZERO),
             Assertion::single(0, self.trace_length() - 1, self.commitment),
+            // Verdict column is identically zero (all halal): two stride-2
+            // periodic assertions cover the even and odd rows respectively.
+            Assertion::periodic(2, 0, 2, BaseElement::ZERO),
+            Assertion::periodic(2, 1, 2, BaseElement::ZERO),
         ]
     }
 
@@ -310,8 +320,7 @@ mod tests {
     }
 
     // The commitment encodes every verdict: a single non-halal entry
-    // produces a distinct commitment, so a verifier holding the halal
-    // commitment cannot be fooled by a haram trace.
+    // produces a distinct commitment.
     #[test]
     fn haram_verdict_changes_commitment() {
         let salt = 0xc0ffee_u64;
@@ -321,6 +330,20 @@ mod tests {
         haram_verdicts[3] = 1;
         let (_, haram_commitment) = build_halal_trace(salt, &haram_verdicts);
         assert_ne!(halal_pub.commitment, haram_commitment);
+    }
+
+    // The verdict assertion makes halal-ness an AIR-level guarantee: a trace
+    // carrying a non-zero verdict cannot be proved at all (it fails trace
+    // validation against the v = 0 boundary assertions).
+    #[test]
+    #[should_panic(expected = "trace does not satisfy assertion")]
+    fn haram_trace_cannot_be_proved() {
+        let salt = 0xc0ffee_u64;
+        let mut haram_verdicts = vec![0u64; 8];
+        haram_verdicts[3] = 1;
+        let (trace, _commitment) = build_halal_trace(salt, &haram_verdicts);
+        let prover = HalalProver::new(default_options());
+        let _ = prover.prove(trace);
     }
 
     #[test]

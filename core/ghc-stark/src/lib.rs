@@ -53,7 +53,10 @@ pub struct HalalPublicInputs {
 
 impl ToElements<BaseElement> for HalalPublicInputs {
     fn to_elements(&self) -> Vec<BaseElement> {
-        vec![BaseElement::new(self.salt), BaseElement::new(self.commitment)]
+        vec![
+            BaseElement::new(self.salt),
+            BaseElement::new(self.commitment),
+        ]
     }
 }
 

@@ -63,12 +63,14 @@ commitment from any disclosed witness.
   pinned to arkworks 0.3 and incompatible with our 0.4 stack, so
   v0.2 either ports it or implements PLONK directly on
   `ark-poly-commit` 0.4.
-- **`stark-poseidon`** — transparent / post-quantum. v0.1 ships the
-  AIR design and the winterfell wiring under `core/ghc-stark`, with
-  the prove/verify round trip queued for v0.2 (the all-zero verdict
-  column collapses winterfell's transition-constraint polynomial
-  contract; the v0.2 fix moves the verdict-equality check from the
-  AIR to a Poseidon hash equality inside the trace).
+- **`stark-poseidon`** — transparent / post-quantum. Implemented in
+  `core/ghc-stark`. The AIR carries a 2-element Goldilocks hash state
+  and a verdict column; each row applies a degree-7 round function
+  `(h0', h1') = (h0^7 + 2·h1^7 + v + RC0, h0^7 + h1^7 + v + RC1)`
+  with 8-periodic public round constants. The initial state is seeded
+  by the public salt; the final `h0` is the public commitment. A
+  quadratic extension lifts the effective security to 95 bits. Full
+  prove/verify round-trip tests pass.
 
 ## 2.4 Curve binding
 

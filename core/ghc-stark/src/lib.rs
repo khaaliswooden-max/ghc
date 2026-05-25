@@ -1,32 +1,28 @@
-//! `ghc-stark` — transparent (post-quantum) zk-Halal STARK via
-//! winterfell.
+//! `ghc-stark` — transparent (post-quantum) zk-Halal STARK via winterfell.
 //!
-//! ## Status (v0.1.0)
+//! ## v0.2 status
 //!
-//! The crate ships the AIR design, the prover/verifier wiring, and
-//! the minimum-trace-length scaffolding for the GHC halal-only STARK,
-//! but the AIR's degree contract conflicts with winterfell's
-//! constraint-evaluation framework when the verdict column is
-//! identically zero (the constraint polynomial collapses to zero,
-//! but the framework expects the declared transition degree). The
-//! tuning needed to either (a) pad the trace with non-trivial
-//! evolution that still witnesses an all-halal verdict, or (b) move
-//! the verdict-equality check from the AIR into a Poseidon
-//! commitment hashed inside the trace, is queued for v0.2 alongside
-//! the Poseidon-AIR work.
+//! The crate implements a Poseidon-inspired hash-in-trace AIR over the
+//! Goldilocks field. The trace carries a 2-element hash state `(h0, h1)`
+//! and a verdict column `v`; each row applies one round of a degree-7
+//! permutation with 8-periodic public round constants:
 //!
-//! Until then the `prove` / `verify` round trip is exercised under
-//! `#[cfg(test)]` `#[ignore]`, and the spec marks
-//! `stark-poseidon` as **planned** rather than **implemented**.
-//! The crate compiles cleanly and demonstrates the integration
-//! surface; v0.2 fills in the AIR tuning.
+//! ```text
+//! h0' = h0^7 + 2·h1^7 + v + RC0[i % 8]
+//! h1' = h0^7 +   h1^7 + v + RC1[i % 8]
+//! ```
 //!
-//! ## What this *will* prove (v0.2)
+//! The initial state is `(salt, 0)` and `h0` at the final row is the
+//! public commitment. Because the round constants are non-zero the
+//! transition polynomial has actual degree 7 at every row, satisfying
+//! winterfell's degree-equality contract.
 //!
-//! Given a public salt `s` and a public trace length `N`, knowledge
-//! of a length-`N` execution trace whose verdict column is
-//! identically `0` (`halal`) and whose Poseidon hash over
-//! `(salt, verdicts)` matches a public commitment.
+//! ## What this proves
+//!
+//! Given a public `(salt, commitment)` pair, knowledge of a verdict
+//! sequence whose running hash starting from `salt` yields `commitment`.
+//! A prover whose verdicts differ from the committed values cannot
+//! produce a matching commitment without breaking the hash.
 
 #![forbid(unsafe_code)]
 
@@ -37,30 +33,38 @@ use winterfell::{
     matrix::ColMatrix,
     Air, AirContext, Assertion, BatchingMethod, CompositionPoly, CompositionPolyTrace,
     DefaultConstraintCommitment, DefaultConstraintEvaluator, DefaultTraceLde, EvaluationFrame,
-    FieldExtension, PartitionOptions, Proof, ProofOptions, Prover, StarkDomain, TraceInfo,
+    FieldExtension, PartitionOptions, Proof, ProofOptions, Prover, StarkDomain, Trace, TraceInfo,
     TracePolyTable, TraceTable, TransitionConstraintDegree,
 };
 
-/// Public inputs to the STARK: the salt that the trace is bound to.
+// 8-periodic round constants — small distinct primes, never zero.
+const RC0: [u64; 8] = [2, 5, 11, 17, 23, 31, 41, 47];
+const RC1: [u64; 8] = [3, 7, 13, 19, 29, 37, 43, 53];
+
+/// Public inputs: the salt that seeds the hash and the commitment
+/// produced by hashing `(salt, verdicts)` through the trace.
 #[derive(Clone, Copy, Debug)]
 pub struct HalalPublicInputs {
     pub salt: u64,
+    pub commitment: u64,
 }
 
 impl ToElements<BaseElement> for HalalPublicInputs {
     fn to_elements(&self) -> Vec<BaseElement> {
-        vec![BaseElement::new(self.salt)]
+        vec![BaseElement::new(self.salt), BaseElement::new(self.commitment)]
     }
 }
 
-/// AIR for the GHC halal-only STARK.
+/// AIR for the GHC halal STARK.
 ///
-/// Two trace columns over the Goldilocks field:
-/// * column 0: per-step verdict (must be `0`).
-/// * column 1: salt carry (must be the public `salt` at every row).
+/// Three trace columns over the Goldilocks field:
+/// * column 0 (`h0`): hash state, component 0.
+/// * column 1 (`h1`): hash state, component 1.
+/// * column 2 (`v`):  per-step verdict (0 = halal, 1 = haram).
 pub struct HalalAir {
     context: AirContext<BaseElement>,
     salt: BaseElement,
+    commitment: BaseElement,
 }
 
 impl Air for HalalAir {
@@ -68,42 +72,50 @@ impl Air for HalalAir {
     type PublicInputs = HalalPublicInputs;
 
     fn new(trace_info: TraceInfo, pub_inputs: HalalPublicInputs, options: ProofOptions) -> Self {
-        assert_eq!(trace_info.width(), 2);
-        // Transition degrees:
-        // * col0 (verdict): nxt[0] = cur[0]^2 — degree 2; if seeded at
-        //   0, stays 0 forever.
-        // * col1 (salt evolution): nxt[1] = 2 * cur[1] — degree 1;
-        //   doubles each step, giving the trace non-trivial structure.
+        assert_eq!(trace_info.width(), 3);
+        // Both constraints involve cur[0]^7 and cur[1]^7 — degree 7.
         let degrees = vec![
-            TransitionConstraintDegree::new(2),
-            TransitionConstraintDegree::new(1),
+            TransitionConstraintDegree::new(7),
+            TransitionConstraintDegree::new(7),
         ];
-        // Two assertions: col0[0] = 0, col1[0] = salt.
+        // Three boundary assertions: h0[0]=salt, h1[0]=0, h0[last]=commitment.
         HalalAir {
-            context: AirContext::new(trace_info, degrees, 2, options),
+            context: AirContext::new(trace_info, degrees, 3, options),
             salt: BaseElement::new(pub_inputs.salt),
+            commitment: BaseElement::new(pub_inputs.commitment),
         }
     }
 
     fn evaluate_transition<E: FieldElement + From<Self::BaseField>>(
         &self,
         frame: &EvaluationFrame<E>,
-        _periodic_values: &[E],
+        periodic_values: &[E],
         result: &mut [E],
     ) {
         let cur = frame.current();
         let nxt = frame.next();
-        // col0[i+1] = col0[i]^2; combined with col0[0] = 0 this forces
-        // col0 to be identically zero (since 0^2 = 0).
-        result[0] = nxt[0] - cur[0] * cur[0];
-        // col1[i+1] = cur[1] + 1 (step counter starting from salt).
-        result[1] = nxt[1] - cur[1] - E::ONE;
+        let rc0 = periodic_values[0];
+        let rc1 = periodic_values[1];
+        let two = E::from(BaseElement::new(2));
+        let a0 = cur[0].exp(7u64.into());
+        let a1 = cur[1].exp(7u64.into());
+        let v = cur[2];
+        result[0] = nxt[0] - (a0 + two * a1 + v + rc0);
+        result[1] = nxt[1] - (a0 + a1 + v + rc1);
     }
 
     fn get_assertions(&self) -> Vec<Assertion<Self::BaseField>> {
         vec![
-            Assertion::single(0, 0, BaseElement::ZERO),
-            Assertion::single(1, 0, self.salt),
+            Assertion::single(0, 0, self.salt),
+            Assertion::single(1, 0, BaseElement::ZERO),
+            Assertion::single(0, self.trace_length() - 1, self.commitment),
+        ]
+    }
+
+    fn get_periodic_column_values(&self) -> Vec<Vec<Self::BaseField>> {
+        vec![
+            RC0.iter().map(|&c| BaseElement::new(c)).collect(),
+            RC1.iter().map(|&c| BaseElement::new(c)).collect(),
         ]
     }
 
@@ -112,30 +124,41 @@ impl Air for HalalAir {
     }
 }
 
-/// Minimum trace length winterfell can handle for our AIR at the
-/// chosen blowup / query parameters.
+/// Minimum trace length winterfell can handle for our AIR at the chosen
+/// blowup / query parameters.
 pub const MIN_TRACE_LEN: usize = 256;
 
-/// Build an execution trace for the halal-only STARK.
+/// Build an execution trace for the halal STARK.
 ///
-/// Pads to the next power of 2 (winterfell requires power-of-2
-/// lengths) and to at least `MIN_TRACE_LEN`.
-pub fn build_halal_trace(salt: u64, n: usize) -> TraceTable<BaseElement> {
+/// Returns `(trace, commitment)` where `commitment` is the final `h0`
+/// value.  Verdicts are padded with `0` (halal) to the next power-of-2
+/// trace length ≥ `MIN_TRACE_LEN`.
+pub fn build_halal_trace(salt: u64, verdicts: &[u64]) -> (TraceTable<BaseElement>, u64) {
+    let n = verdicts.len();
     let trace_length = n.max(MIN_TRACE_LEN).next_power_of_two();
-    let mut trace = TraceTable::new(2, trace_length);
+    let v_pad: Vec<u64> = (0..trace_length)
+        .map(|i| if i < n { verdicts[i] } else { 0 })
+        .collect();
+    let mut trace = TraceTable::new(3, trace_length);
     trace.fill(
         |state| {
-            state[0] = BaseElement::ZERO;
-            state[1] = BaseElement::new(salt);
+            state[0] = BaseElement::new(salt);
+            state[1] = BaseElement::ZERO;
+            state[2] = BaseElement::new(v_pad[0]);
         },
-        |_, state| {
-            // col0 stays at 0 (since 0^2 = 0).
-            state[0] = state[0] * state[0];
-            // col1 increments by 1 each step.
-            state[1] += BaseElement::ONE;
+        |i, state| {
+            let a0 = state[0].exp(7u64);
+            let a1 = state[1].exp(7u64);
+            let v = state[2];
+            let rc0 = BaseElement::new(RC0[i % 8]);
+            let rc1 = BaseElement::new(RC1[i % 8]);
+            state[0] = a0 + BaseElement::new(2) * a1 + v + rc0;
+            state[1] = a0 + a1 + v + rc1;
+            state[2] = BaseElement::new(v_pad[i + 1]);
         },
     );
-    trace
+    let commitment = trace.get(0, trace_length - 1).as_int();
+    (trace, commitment)
 }
 
 /// The Prover.
@@ -164,8 +187,9 @@ impl Prover for HalalProver {
         DefaultConstraintEvaluator<'a, Self::Air, E>;
 
     fn get_pub_inputs(&self, trace: &Self::Trace) -> HalalPublicInputs {
-        let salt = trace.get(1, 0).as_int();
-        HalalPublicInputs { salt }
+        let salt = trace.get(0, 0).as_int();
+        let commitment = trace.get(0, trace.length() - 1).as_int();
+        HalalPublicInputs { salt, commitment }
     }
 
     fn options(&self) -> &ProofOptions {
@@ -213,7 +237,7 @@ pub fn default_options() -> ProofOptions {
         32,
         8,
         0,
-        FieldExtension::None,
+        FieldExtension::Quadratic,
         8,
         31,
         BatchingMethod::Linear,
@@ -221,18 +245,21 @@ pub fn default_options() -> ProofOptions {
     )
 }
 
-/// Prove there exists an all-halal trace of length `n` bound to `salt`.
+/// Prove an all-halal trace of length `n` bound to `salt`.
+///
+/// Returns the public inputs (including the hash commitment) and the proof.
 pub fn prove(salt: u64, n: usize) -> Result<(HalalPublicInputs, Proof), StarkError> {
-    let trace = build_halal_trace(salt, n);
+    let verdicts = vec![0u64; n];
+    let (trace, commitment) = build_halal_trace(salt, &verdicts);
     let prover = HalalProver::new(default_options());
-    let pub_inputs = HalalPublicInputs { salt };
+    let pub_inputs = HalalPublicInputs { salt, commitment };
     let proof = prover
         .prove(trace)
         .map_err(|e| StarkError::Proving(format!("{e:?}")))?;
     Ok((pub_inputs, proof))
 }
 
-/// Verify a STARK proof.
+/// Verify a STARK proof against the given public inputs.
 pub fn verify(pub_inputs: HalalPublicInputs, proof: Proof) -> Result<(), StarkError> {
     let min_opts = winterfell::AcceptableOptions::MinConjecturedSecurity(95);
     winterfell::verify::<
@@ -257,18 +284,7 @@ mod tests {
     use super::*;
     use winterfell::Trace;
 
-    // The `prove` / `verify` round trip is currently `#[ignore]`'d
-    // because the all-zero verdict column collapses the
-    // transition-constraint polynomial to zero, which conflicts with
-    // winterfell's degree-equality check at
-    // `winter-prover/.../evaluation_table.rs:214`. v0.2 either
-    // (a) replaces the `verdict = 0` AIR constraint with a Poseidon
-    // hash equality inside the trace, or (b) embeds the verdict in a
-    // non-trivial evolving column. Both fixes need winterfell-side
-    // expertise that exceeds v0.1 scope.
-
     #[test]
-    #[ignore = "winterfell AIR-degree tuning queued for v0.2"]
     fn halal_stark_proves_and_verifies() {
         let salt = 0xc0ffee_u64;
         let (pub_inputs, proof) = prove(salt, 8).expect("prove");
@@ -276,7 +292,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "winterfell AIR-degree tuning queued for v0.2"]
     fn halal_stark_with_different_salt_proves_and_verifies() {
         for salt in [1u64, 42, 0xdeadbeef] {
             let (pub_inputs, proof) = prove(salt, 16).expect("prove");
@@ -285,22 +300,37 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "winterfell AIR-degree tuning queued for v0.2"]
     fn halal_stark_wrong_salt_fails_verification() {
         let salt = 7u64;
         let (_, proof) = prove(salt, 8).expect("prove");
-        let bogus = HalalPublicInputs { salt: salt + 1 };
+        // Public inputs for a different salt are self-consistent but do not
+        // match the proof transcript generated with salt = 7.
+        let (bogus, _) = prove(salt + 1, 8).expect("prove with different salt");
         assert!(verify(bogus, proof).is_err());
+    }
+
+    // The commitment encodes every verdict: a single non-halal entry
+    // produces a distinct commitment, so a verifier holding the halal
+    // commitment cannot be fooled by a haram trace.
+    #[test]
+    fn haram_verdict_changes_commitment() {
+        let salt = 0xc0ffee_u64;
+        let n = 8;
+        let (halal_pub, _) = prove(salt, n).expect("prove halal");
+        let mut haram_verdicts = vec![0u64; n];
+        haram_verdicts[3] = 1;
+        let (_, haram_commitment) = build_halal_trace(salt, &haram_verdicts);
+        assert_ne!(halal_pub.commitment, haram_commitment);
     }
 
     #[test]
     fn pads_to_power_of_two() {
-        let trace = build_halal_trace(123, 5);
+        let (trace, _commitment) = build_halal_trace(123, &[0u64; 5]);
         assert_eq!(trace.length(), MIN_TRACE_LEN);
-        // col0 is identically 0; col1 increments by 1 from salt.
+        assert_eq!(trace.get(0, 0), BaseElement::new(123));
+        assert_eq!(trace.get(1, 0), BaseElement::ZERO);
         for i in 0..MIN_TRACE_LEN {
-            assert_eq!(trace.get(0, i), BaseElement::ZERO);
-            assert_eq!(trace.get(1, i), BaseElement::new(123 + i as u64));
+            assert_eq!(trace.get(2, i), BaseElement::ZERO);
         }
     }
 }
